@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import album.car.test.albumcar12.dto.albumDto.AlbumDtoCreateInput;
+import album.car.test.albumcar12.dto.albumDto.AlbumDtoDeleteImage;
 import album.car.test.albumcar12.dto.albumDto.AlbumDtoImageInput;
 import album.car.test.albumcar12.dto.albumDto.AlbumDtoOutput;
 import album.car.test.albumcar12.dto.albumDto.AlbumDtoUpdate;
@@ -66,8 +67,12 @@ public class AlbumService {
             throw new EntityNotFoundException("Não foi possível adicionar a imagem! O album não existente");
         }
 
+        UserModel user = userRepository.findUserByid(idUser);
+        AlbumModel albumModel = user.getAlbum().stream()
+        .filter(album -> album.getId().equals(idAlbum))
+        .findFirst()
+        .orElseThrow(() -> new NoSuchElementException("O usuário fornecido não possui nenhum album correspondente a o id fornecido"));
         List<String> listImage = imageDto.getImage();
-        AlbumModel albumModel = albumRepository.findAlbumById(idAlbum);
         listImage.stream()
         .map(image -> albumModel.getImage().add(image))
         .collect(Collectors.toList());
@@ -95,10 +100,14 @@ public class AlbumService {
             throw new EntityNotFoundException("Não foi possível atualizar o campo! O usuário não existe");
         }
         if(!albumRepository.existsById(idAlbum)){
-            throw new EntityNotFoundException("Não foi possível atualizar o campo! O album não existente");
+            throw new EntityNotFoundException("Não foi possível adicionar a imagem! O album não existente");
         }
 
-        AlbumModel albumModel = albumRepository.findAlbumById(idAlbum);
+        UserModel user = userRepository.findUserByid(idUser);
+        AlbumModel albumModel = user.getAlbum().stream()
+        .filter(album -> album.getId().equals(idAlbum))
+        .findFirst()
+        .orElseThrow(() -> new NoSuchElementException("Não foi possível encontrar o album"));
 
         if(albumDto.getName() == null){
             albumDto.setName(albumModel.getName());
@@ -116,9 +125,39 @@ public class AlbumService {
     }
 
     @Transactional
+    public AlbumDtoOutput deleteImageAlbum(UUID idUser, UUID idAlbum, AlbumDtoDeleteImage imageDto){
+        if(!userRepository.existsById(idUser)){
+            throw new EntityNotFoundException("Não foi possível deletar o album, usuário não existente");
+        }
+        if(!albumRepository.existsById(idAlbum)){
+            throw new EntityNotFoundException("Não foi possível adicionar a imagem! O album não existente");
+        }
+
+        UserModel user = userRepository.findUserByid(idUser);
+        AlbumModel albumModel = user.getAlbum().stream()
+        .filter(album -> album.getId().equals(idAlbum))
+        .findFirst()
+        .orElseThrow(() -> new NoSuchElementException("Não foi possível encontrar o album"));
+
+        List<String> imageDelete = albumModel.getImage().stream()
+        .filter(image -> !image.equals(imageDto.getImage()))
+        .collect(Collectors.toList());
+
+        albumModel.setImage(imageDelete);
+        albumRepository.save(albumModel);
+
+        AlbumDtoOutput albumOutput = modelMapper.map(albumModel, AlbumDtoOutput.class);
+
+        return albumOutput;
+    }
+
+    @Transactional
     public void deleteAlbumById(UUID idUser, UUID idAlbum){
         if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Não foi possível criar um novo album, usuário não existente");
+            throw new EntityNotFoundException("Não foi possível deletar o album, usuário não existente");
+        }
+        if(!albumRepository.existsById(idAlbum)){
+            throw new EntityNotFoundException("Não foi possível adicionar a imagem! O album não existente");
         }
 
         UserModel user = userRepository.findUserByid(idUser);

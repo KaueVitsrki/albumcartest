@@ -50,4 +50,5 @@ public class AlbumModel {
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JsonIgnore
     private List<HotModel> hot;
+
 }
