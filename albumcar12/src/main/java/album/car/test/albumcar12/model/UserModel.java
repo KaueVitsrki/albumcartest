@@ -38,11 +38,11 @@ public class UserModel {
     
     @NotBlank
     private String password;
-
-    @NotBlank
-    private String country;
-    @Length(min = 3)
+    
+    @Length(min = 3) @NotBlank
     private String name;
+
+    private String country;
     private String state;
     private String city;
     private String description;

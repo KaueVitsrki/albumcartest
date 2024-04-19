@@ -35,7 +35,7 @@ public class DiaryService {
             throw new EntityNotFoundException("Não foi possível criar o diary! O album não existe");
         }
 
-        UserModel user = userRepository.findUserByid(idUser);
+        UserModel user = userRepository.findUserById(idUser);
 
         AlbumModel albumUser = user.getAlbum().stream()
         .filter(album -> album.getId().equals(idAlbum))

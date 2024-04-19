@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AlbumDtoUpdate {
-    private String name;
-    private String description;
+public class AlbumDtoDeleteImageInput {
+    private String image;
 }

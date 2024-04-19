@@ -11,10 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import album.car.test.albumcar12.dto.albumDto.AlbumDtoCreateInput;
-import album.car.test.albumcar12.dto.albumDto.AlbumDtoDeleteImage;
+import album.car.test.albumcar12.dto.albumDto.AlbumDtoDeleteImageInput;
 import album.car.test.albumcar12.dto.albumDto.AlbumDtoImageInput;
 import album.car.test.albumcar12.dto.albumDto.AlbumDtoOutput;
-import album.car.test.albumcar12.dto.albumDto.AlbumDtoUpdate;
+import album.car.test.albumcar12.dto.albumDto.AlbumDtoUpdateInput;
 import album.car.test.albumcar12.exception.NameAlbumAlreadyExistsException;
 import album.car.test.albumcar12.model.AlbumModel;
 import album.car.test.albumcar12.model.UserModel;
@@ -38,7 +38,7 @@ public class AlbumService {
             throw new EntityNotFoundException("Não foi possível criar um novo album, usuário não existente");
         }
 
-        UserModel user = userRepository.findUserByid(idUser);
+        UserModel user = userRepository.findUserById(idUser);
         boolean nameAlbumExist = user.getAlbum().stream()
         .anyMatch(album -> album.getName().equals(albumDto.getName()));
 
@@ -67,7 +67,7 @@ public class AlbumService {
             throw new EntityNotFoundException("Não foi possível adicionar a imagem! O album não existente");
         }
 
-        UserModel user = userRepository.findUserByid(idUser);
+        UserModel user = userRepository.findUserById(idUser);
         AlbumModel albumModel = user.getAlbum().stream()
         .filter(album -> album.getId().equals(idAlbum))
         .findFirst()
@@ -88,14 +88,14 @@ public class AlbumService {
             throw new EntityNotFoundException("Não foi possível criar um novo album, usuário não existente");
         }
 
-        UserModel user = userRepository.findUserByid(idUser);
+        UserModel user = userRepository.findUserById(idUser);
         List<AlbumModel> listAlbum = user.getAlbum();
 
         return AlbumDtoOutput.convert(listAlbum);
     }
 
     @Transactional
-    public AlbumDtoOutput updateAlbum(UUID idUser, UUID idAlbum, AlbumDtoUpdate albumDto){
+    public AlbumDtoOutput updateAlbum(UUID idUser, UUID idAlbum, AlbumDtoUpdateInput albumDto){
         if(!userRepository.existsById(idUser)){
             throw new EntityNotFoundException("Não foi possível atualizar o campo! O usuário não existe");
         }
@@ -103,7 +103,7 @@ public class AlbumService {
             throw new EntityNotFoundException("Não foi possível adicionar a imagem! O album não existente");
         }
 
-        UserModel user = userRepository.findUserByid(idUser);
+        UserModel user = userRepository.findUserById(idUser);
         AlbumModel albumModel = user.getAlbum().stream()
         .filter(album -> album.getId().equals(idAlbum))
         .findFirst()
@@ -125,7 +125,7 @@ public class AlbumService {
     }
 
     @Transactional
-    public AlbumDtoOutput deleteImageAlbum(UUID idUser, UUID idAlbum, AlbumDtoDeleteImage imageDto){
+    public AlbumDtoOutput deleteImageAlbum(UUID idUser, UUID idAlbum, AlbumDtoDeleteImageInput imageDto){
         if(!userRepository.existsById(idUser)){
             throw new EntityNotFoundException("Não foi possível deletar o album, usuário não existente");
         }
@@ -133,7 +133,7 @@ public class AlbumService {
             throw new EntityNotFoundException("Não foi possível adicionar a imagem! O album não existente");
         }
 
-        UserModel user = userRepository.findUserByid(idUser);
+        UserModel user = userRepository.findUserById(idUser);
         AlbumModel albumModel = user.getAlbum().stream()
         .filter(album -> album.getId().equals(idAlbum))
         .findFirst()
@@ -160,7 +160,7 @@ public class AlbumService {
             throw new EntityNotFoundException("Não foi possível adicionar a imagem! O album não existente");
         }
 
-        UserModel user = userRepository.findUserByid(idUser);
+        UserModel user = userRepository.findUserById(idUser);
         AlbumModel albumToDelete = user.getAlbum().stream()
         .filter(album -> album.getId().equals(idAlbum))
         .findFirst()

@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import album.car.test.albumcar12.dto.albumDto.AlbumDtoCreateInput;
-import album.car.test.albumcar12.dto.albumDto.AlbumDtoDeleteImage;
+import album.car.test.albumcar12.dto.albumDto.AlbumDtoDeleteImageInput;
 import album.car.test.albumcar12.dto.albumDto.AlbumDtoImageInput;
 import album.car.test.albumcar12.dto.albumDto.AlbumDtoOutput;
-import album.car.test.albumcar12.dto.albumDto.AlbumDtoUpdate;
+import album.car.test.albumcar12.dto.albumDto.AlbumDtoUpdateInput;
 import album.car.test.albumcar12.service.AlbumService;
 import jakarta.validation.Valid;
 
@@ -49,13 +49,13 @@ public class AlbumController {
     } 
 
     @PatchMapping("/{idUser}/{idAlbum}")
-    public ResponseEntity<AlbumDtoOutput> updateAlbum(@PathVariable UUID idUser, @PathVariable UUID idAlbum, @RequestBody AlbumDtoUpdate albumDto){
+    public ResponseEntity<AlbumDtoOutput> updateAlbum(@PathVariable UUID idUser, @PathVariable UUID idAlbum, @RequestBody AlbumDtoUpdateInput albumDto){
         AlbumDtoOutput albumDtoOutput = albumService.updateAlbum(idUser, idAlbum, albumDto);
         return ResponseEntity.ok(albumDtoOutput);
     }
 
     @PatchMapping("/image/{idUser}/{idAlbum}")
-    public ResponseEntity<AlbumDtoOutput> deleteImageAlbum(@PathVariable UUID idUser, @PathVariable UUID idAlbum, @RequestBody AlbumDtoDeleteImage imageDto){
+    public ResponseEntity<AlbumDtoOutput> deleteImageAlbum(@PathVariable UUID idUser, @PathVariable UUID idAlbum, @RequestBody AlbumDtoDeleteImageInput imageDto){
         AlbumDtoOutput albumDtoOutput = albumService.deleteImageAlbum(idUser, idAlbum, imageDto);
         return ResponseEntity.ok(albumDtoOutput);
     }

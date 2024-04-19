@@ -39,7 +39,7 @@ public class HotService {
             throw new EntityNotFoundException("Não foi possível criar o diary! O album não existe");
         }
 
-        UserModel user = userRepository.findUserByid(idUser);
+        UserModel user = userRepository.findUserById(idUser);
         List<HotModel> userHot = user.getHot();
         boolean giveHot = userHot.stream().anyMatch(hot -> hot.getUser().getId().equals(user.getId()));
 
@@ -69,7 +69,7 @@ public class HotService {
             throw new EntityNotFoundException("Não foi possível criar o diary! O album não existe");
         }
 
-        UserModel user = userRepository.findUserByid(idUser);
+        UserModel user = userRepository.findUserById(idUser);
         List<HotModel> userHot = user.getHot();
         boolean giveHot = userHot.stream().anyMatch(hot -> hot.getUser().getId().equals(user.getId()));
 
