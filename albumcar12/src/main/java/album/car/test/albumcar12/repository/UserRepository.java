@@ -8,4 +8,5 @@ import album.car.test.albumcar12.model.UserModel;
 
 public interface UserRepository extends JpaRepository<UserModel, UUID>{
     UserModel findUserById(UUID id);
+    boolean existsByEmail(String email);
 }

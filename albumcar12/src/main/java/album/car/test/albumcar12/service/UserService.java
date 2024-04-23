@@ -11,12 +11,21 @@ import org.springframework.stereotype.Service;
 
 import album.car.test.albumcar12.dto.userDto.UserDtoCreateInput;
 import album.car.test.albumcar12.dto.userDto.UserDtoDeleteInput;
+import album.car.test.albumcar12.dto.userDto.UserDtoInserImageUserInput;
 import album.car.test.albumcar12.dto.userDto.UserDtoInsertDescriptionInput;
 import album.car.test.albumcar12.dto.userDto.UserDtoInsertLocationUserInput;
+import album.car.test.albumcar12.dto.userDto.UserDtoInsertWallpaperUser;
 import album.car.test.albumcar12.dto.userDto.UserDtoOutput;
+import album.car.test.albumcar12.dto.userDto.UserDtoUpdateEmailUser;
 import album.car.test.albumcar12.dto.userDto.UserDtoUpdateLocationUserInput;
-import album.car.test.albumcar12.exception.DescriptionCreatedException;
+import album.car.test.albumcar12.dto.userDto.UserDtoUpdateNameUser;
+import album.car.test.albumcar12.dto.userDto.UserDtoUpdatePasswordUser;
+import album.car.test.albumcar12.exception.DescriptionNotCreatedException;
+import album.car.test.albumcar12.exception.EmailExistException;
+import album.car.test.albumcar12.exception.FieldAlreadyCreatedException;
+import album.car.test.albumcar12.exception.ImageNotCreatedException;
 import album.car.test.albumcar12.exception.InvalidFieldsException;
+import album.car.test.albumcar12.exception.InvalidPassword;
 import album.car.test.albumcar12.model.UserModel;
 import album.car.test.albumcar12.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -28,60 +37,41 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private PasswordService passwordService;
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Transactional
     public UserDtoOutput createUser(UserDtoCreateInput userDto){
         UserModel userModel = modelMapper.map(userDto, UserModel.class);
-        String password = new BCryptPasswordEncoder().encode(userModel.getPassword());
 
+        if(!passwordService.validate(userDto.getPassword()).isEmpty()){
+            List<String> passwordStrings = passwordService.validate(userDto.getPassword());
+            throw new InvalidPassword(passwordStrings.toString());
+        }
+
+        String password = new BCryptPasswordEncoder().encode(userModel.getPassword());
         userModel.setPassword(password);
         userModel.setAlbum(new ArrayList<>());
         userModel.setDiary(new ArrayList<>());
         userModel.setHot(new ArrayList<>());
-
         UserModel createUser = userRepository.save(userModel);
         UserDtoOutput returnUser = modelMapper.map(createUser, UserDtoOutput.class);
 
         return returnUser;
     }
 
-    public List<UserDtoOutput> listUsers(){
-        List<UserModel> listUsers = userRepository.findAll();
-        return UserDtoOutput.convert(listUsers);
-    }  
-
     @Transactional
     public UserDtoOutput insertDescriptionUser(UUID idUser, UserDtoInsertDescriptionInput userDto){
         if(!userRepository.existsById(idUser)){
             throw new EntityNotFoundException("Usuário não existente");
         }
-        if(userDto.getDescription().equals(null)){
-            throw new EntityNotFoundException("Não foi possível criar a descrição, pois o campo está nulo");
-        }
 
         UserModel user = userRepository.findUserById(idUser);
 
-
-        user.setDescription(userDto.getDescription());
-        userRepository.save(user);
-        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
-
-        return userDtoOutput;
-    }
-
-    @Transactional
-    public UserDtoOutput updateDescriptionUser(UUID idUser, UserDtoInsertDescriptionInput userDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Usuário não existente");
-        }
-        if(userDto.getDescription().equals(null)){
-            throw new EntityNotFoundException("Não foi possível atualizar a descrição, pois o campo está nulo");
-        }
-
-        UserModel user = userRepository.findUserById(idUser);
-
-        if(user.getDescription().equals(null)){
-            throw new DescriptionCreatedException("A descrição não foi criada!");
+        if(user.getDescription() != null){
+            throw new FieldAlreadyCreatedException("Não foi possível criar o campo, pois ele já existe!");
         }
 
         user.setDescription(userDto.getDescription());
@@ -98,9 +88,135 @@ public class UserService {
         }
 
         UserModel user = userRepository.findUserById(idUser);
+
+        if(user.getCountry() != null){
+            throw new FieldAlreadyCreatedException("Não foi possível criar o campo, pois ele já existe!");
+        }
+
         user.setCountry(userDto.getCountry());
         user.setState(userDto.getState());
         user.setCity(userDto.getCity());
+        userRepository.save(user);
+        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+
+        return userDtoOutput;
+    }
+
+    @Transactional 
+    public UserDtoOutput insertImageUser(UUID idUser, UserDtoInserImageUserInput userDto){
+        if(!userRepository.existsById(idUser)){
+            throw new EntityNotFoundException("Usuário não existente");
+        }
+
+        UserModel user = userRepository.findUserById(idUser);
+
+        if(user.getImage() != null){
+            throw new FieldAlreadyCreatedException("Não foi possível criar o campo, pois ele já existe!");
+        }
+
+        user.setImage(userDto.getImage());
+        userRepository.save(user);
+        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+        
+        return userDtoOutput;
+    }
+
+    @Transactional
+    public UserDtoOutput insertWallpaperUser(UUID idUser, UserDtoInsertWallpaperUser userDto){
+        if(!userRepository.existsById(idUser)){
+            throw new EntityNotFoundException("Usuário não existente");
+        }
+
+        UserModel user = userRepository.findUserById(idUser);
+
+        if(user.getWallpaper() != null){
+            throw new FieldAlreadyCreatedException("Não foi possível criar o campo, pois ele já existe!");
+        }
+        
+        user.setWallpaper(userDto.getWallpaper());
+        userRepository.save(user);
+        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+
+        return userDtoOutput;
+
+    }
+
+    @Transactional
+    public UserDtoOutput updateNameUser(UUID idUser, UserDtoUpdateNameUser userDto){
+        if(!userRepository.existsById(idUser)){
+            throw new EntityNotFoundException("Usuário não existente");
+        }
+
+        UserModel user = userRepository.findUserById(idUser);
+        user.setName(userDto.getName());
+        userRepository.save(user);
+        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+
+        return userDtoOutput;
+    }
+
+    @Transactional 
+    public UserDtoOutput updateEmailUser(UUID idUser, UserDtoUpdateEmailUser userDto){
+        if(!userRepository.existsById(idUser)){
+            throw new EntityNotFoundException("Usuário não existente");
+        }
+        if(userRepository.existsByEmail(userDto.getNewEmail())){
+            throw new EmailExistException("Não foi possível atualizar o email! O email informado já foi cadastrado");
+        }
+
+        UserModel user = userRepository.findUserById(idUser);
+        boolean passwordMatch = matches(userDto.getPassword(), user.getPassword()); 
+        boolean passwordConfirmationMatch = matches(userDto.getPasswordConfirmation(), user.getPassword());
+
+        if(!passwordMatch || !passwordConfirmationMatch || passwordMatch != passwordConfirmationMatch){
+            throw new InvalidFieldsException("Um ou todos os campos estão inválidos");
+        }
+
+        user.setEmail(userDto.getNewEmail());
+        userRepository.save(user);
+        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+        
+        return userDtoOutput;
+    }
+
+    @Transactional
+    public UserDtoOutput updatePasswordUser(UUID idUser, UserDtoUpdatePasswordUser userDto){
+        if(!userRepository.existsById(idUser)){
+            throw new EntityNotFoundException("Usuário não existente");
+        }
+        
+        UserModel user = userRepository.findUserById(idUser);
+        boolean currentPasswordMatch = matches(userDto.getCurrentPassword(), user.getPassword()); 
+        
+        if(!currentPasswordMatch || !userDto.getNewPassword().equals(userDto.getNewPasswordConfirmation())){
+            throw new InvalidPassword("Senha errada! Ou o conteúdo dos campos é diferente");
+        }
+        if(!passwordService.validate(userDto.getNewPassword()).isEmpty()){
+            List<String> passwordStrings = passwordService.validate(userDto.getNewPassword());
+            throw new InvalidPassword(passwordStrings.toString());
+        }
+
+        String newPassword = new BCryptPasswordEncoder().encode(userDto.getNewPassword());
+        user.setPassword(newPassword);
+        userRepository.save(user);
+        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+
+        return userDtoOutput;
+    }
+
+    @Transactional
+    public UserDtoOutput updateDescriptionUser(UUID idUser, UserDtoInsertDescriptionInput userDto){
+        if(!userRepository.existsById(idUser)){
+            throw new EntityNotFoundException("Usuário não existente");
+        }
+
+        UserModel user = userRepository.findUserById(idUser);
+
+        if(user.getDescription() == null){ // mudei de .equals(null)
+            throw new DescriptionNotCreatedException("A descrição não foi criada!");
+        }
+
+        user.setDescription(userDto.getDescription());
         userRepository.save(user);
         UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
 
@@ -115,6 +231,9 @@ public class UserService {
 
         UserModel user = userRepository.findUserById(idUser);
 
+        if(user.getCountry() == null){
+            throw new EntityNotFoundException("Adicione primeiro o país");
+        }
         if(userDto.getCountry() == null){
             userDto.setCountry(user.getCountry());
         }
@@ -134,6 +253,87 @@ public class UserService {
         return userDtoOutput;
     }
 
+    @Transactional 
+    public UserDtoOutput updateImageUser(UUID idUser, UserDtoInserImageUserInput userDto){
+        if(!userRepository.existsById(idUser)){
+            throw new EntityNotFoundException("Usuário não existente");
+        }
+
+        UserModel user = userRepository.findUserById(idUser);
+
+        if(user.getImage() == null){ // mudei de .equals(null)
+            throw new ImageNotCreatedException("A imagem não foi adicionada!");
+        }
+
+        user.setImage(userDto.getImage());
+        userRepository.save(user);
+        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+        
+        return userDtoOutput;
+    }
+
+    @Transactional
+    public UserDtoOutput updateWallpaperUser(UUID idUser, UserDtoInsertWallpaperUser userDto){
+        if(!userRepository.existsById(idUser)){
+            throw new EntityNotFoundException("Usuário não existente");
+        }
+
+        UserModel user = userRepository.findUserById(idUser);
+
+        if(user.getWallpaper() == null){ // mudei de .equals(null)
+            throw new ImageNotCreatedException("A imagem não foi adicionada!");
+        }
+       
+        user.setWallpaper(userDto.getWallpaper());
+        userRepository.save(user);
+        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+
+        return userDtoOutput;
+    }
+ 
+    public List<UserDtoOutput> listUsers(){
+        List<UserModel> listUsers = userRepository.findAll();
+        return UserDtoOutput.convert(listUsers);
+    } 
+
+    @Transactional
+    public void deleteWallpaperUser(UUID idUser){
+        if(!userRepository.existsById(idUser)){
+            throw new EntityNotFoundException("Usuário não existente");
+        }
+
+        UserModel user = userRepository.findUserById(idUser);
+        user.setWallpaper(null);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public UserDtoOutput deleteLocationUser(UUID idUser){
+        if(!userRepository.existsById(idUser)){
+            throw new EntityNotFoundException("Usuário não existente");
+        }
+
+        UserModel user = userRepository.findUserById(idUser);
+        user.setCountry(null);
+        user.setState(null);
+        user.setCity(null);
+        userRepository.save(user);
+        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+
+        return userDtoOutput;
+    }
+
+    @Transactional
+    public void deleteImageUser(UUID idUser){
+        if(!userRepository.existsById(idUser)){
+            throw new EntityNotFoundException("Usuário não existente");
+        }
+
+        UserModel user = userRepository.findUserById(idUser);
+        user.setImage(null);
+        userRepository.save(user);
+    }
+
     @Transactional
     public void deleteUser(UUID idUser, UserDtoDeleteInput userDto){
         if(!userRepository.existsById(idUser)){
@@ -151,9 +351,7 @@ public class UserService {
         userRepository.deleteById(idUser);
     }
 
-    private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
     private boolean matches(String rawPassword, String encodedPassword) {
-        return encoder.matches(rawPassword, encodedPassword);
+        return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 }

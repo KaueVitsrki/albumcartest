@@ -125,7 +125,7 @@ public class AlbumService {
     }
 
     @Transactional
-    public AlbumDtoOutput deleteImageAlbum(UUID idUser, UUID idAlbum, AlbumDtoDeleteImageInput imageDto){
+    public void deleteImageAlbum(UUID idUser, UUID idAlbum, AlbumDtoDeleteImageInput imageDto){
         if(!userRepository.existsById(idUser)){
             throw new EntityNotFoundException("Não foi possível deletar o album, usuário não existente");
         }
@@ -145,10 +145,6 @@ public class AlbumService {
 
         albumModel.setImage(imageDelete);
         albumRepository.save(albumModel);
-
-        AlbumDtoOutput albumOutput = modelMapper.map(albumModel, AlbumDtoOutput.class);
-
-        return albumOutput;
     }
 
     @Transactional

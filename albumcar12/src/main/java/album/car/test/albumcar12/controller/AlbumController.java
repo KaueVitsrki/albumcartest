@@ -54,10 +54,10 @@ public class AlbumController {
         return ResponseEntity.ok(albumDtoOutput);
     }
 
-    @PatchMapping("/image/{idUser}/{idAlbum}")
+    @DeleteMapping("/image/{idUser}/{idAlbum}")
     public ResponseEntity<AlbumDtoOutput> deleteImageAlbum(@PathVariable UUID idUser, @PathVariable UUID idAlbum, @RequestBody AlbumDtoDeleteImageInput imageDto){
-        AlbumDtoOutput albumDtoOutput = albumService.deleteImageAlbum(idUser, idAlbum, imageDto);
-        return ResponseEntity.ok(albumDtoOutput);
+        albumService.deleteImageAlbum(idUser, idAlbum, imageDto);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{idUser}/{idAlbum}")

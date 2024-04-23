@@ -17,10 +17,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import album.car.test.albumcar12.dto.userDto.UserDtoCreateInput;
 import album.car.test.albumcar12.dto.userDto.UserDtoDeleteInput;
+import album.car.test.albumcar12.dto.userDto.UserDtoInserImageUserInput;
 import album.car.test.albumcar12.dto.userDto.UserDtoInsertDescriptionInput;
 import album.car.test.albumcar12.dto.userDto.UserDtoInsertLocationUserInput;
+import album.car.test.albumcar12.dto.userDto.UserDtoInsertWallpaperUser;
 import album.car.test.albumcar12.dto.userDto.UserDtoOutput;
+import album.car.test.albumcar12.dto.userDto.UserDtoUpdateEmailUser;
 import album.car.test.albumcar12.dto.userDto.UserDtoUpdateLocationUserInput;
+import album.car.test.albumcar12.dto.userDto.UserDtoUpdateNameUser;
+import album.car.test.albumcar12.dto.userDto.UserDtoUpdatePasswordUser;
+import album.car.test.albumcar12.model.UserModel;
+import album.car.test.albumcar12.repository.UserRepository;
 import album.car.test.albumcar12.service.UserService;
 import jakarta.validation.Valid;
 
@@ -29,6 +36,8 @@ import jakarta.validation.Valid;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
 
     @PostMapping
     public ResponseEntity<UserDtoOutput> createUser(@RequestBody @Valid UserDtoCreateInput userDto){
@@ -37,33 +46,99 @@ public class UserController {
     }
 
     @PostMapping("/description/{idUser}")
-    public ResponseEntity<UserDtoOutput> insertDescriptionUser(@PathVariable UUID idUser, @RequestBody UserDtoInsertDescriptionInput userDto){
+    public ResponseEntity<UserDtoOutput> insertDescriptionUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoInsertDescriptionInput userDto){
         UserDtoOutput userDtoOutput = userService.insertDescriptionUser(idUser, userDto);
         return new ResponseEntity<UserDtoOutput>(userDtoOutput, HttpStatus.CREATED);
     }
 
     @PostMapping("/location/{idUser}")
-    public ResponseEntity<UserDtoOutput> insertLocationUser(@RequestBody @Valid UserDtoInsertLocationUserInput userDto, @PathVariable UUID idUser){
+    public ResponseEntity<UserDtoOutput> insertLocationUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoInsertLocationUserInput userDto){
         UserDtoOutput userDtoOutput = userService.insertLocationUser(idUser, userDto);
         return new ResponseEntity<UserDtoOutput>(userDtoOutput, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/location/{idUser}")
-    public ResponseEntity<UserDtoOutput> updateLocationUser(@RequestBody UserDtoUpdateLocationUserInput userDto, @PathVariable UUID idUser){
-        UserDtoOutput userDtoOutput = userService.updateLocationUser(idUser, userDto);
+    @PostMapping("/wallpaper/{idUser}")
+    public ResponseEntity<UserDtoOutput> insertWallpaperUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoInsertWallpaperUser userDto){
+        UserDtoOutput userDtoOutput = userService.insertWallpaperUser(idUser, userDto);
         return new ResponseEntity<UserDtoOutput>(userDtoOutput, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/description/{idUser}")
-    public ResponseEntity<UserDtoOutput> descriptionUpdate(@PathVariable UUID idUser, @RequestBody UserDtoInsertDescriptionInput userDto){
-        UserDtoOutput userDtoOutput = userService.updateDescriptionUser(idUser, userDto);
+    @PostMapping("/image/{idUser}")
+    public ResponseEntity<UserDtoOutput> insertImageUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoInserImageUserInput userDto){
+        UserDtoOutput userDtoOutput = userService.insertImageUser(idUser, userDto);
         return new ResponseEntity<UserDtoOutput>(userDtoOutput, HttpStatus.CREATED);
+    }
+
+    @PatchMapping("/name/{idUser}")
+    public ResponseEntity<UserDtoOutput> updateNameUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoUpdateNameUser userDto){
+        UserDtoOutput userDtoOutput = userService.updateNameUser(idUser, userDto);
+        return ResponseEntity.ok(userDtoOutput);
+    }
+
+    @PatchMapping("/email/{idUser}")
+    public ResponseEntity<UserDtoOutput> updateEmailUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoUpdateEmailUser userDto){
+        UserDtoOutput userDtoOutput = userService.updateEmailUser(idUser, userDto);
+        return ResponseEntity.ok(userDtoOutput);
+    }
+
+    @PatchMapping("/password/{idUser}")
+    public ResponseEntity<UserDtoOutput> updatePasswordUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoUpdatePasswordUser userDto){
+        UserDtoOutput userDtoOutput = userService.updatePasswordUser(idUser, userDto);
+        return ResponseEntity.ok(userDtoOutput);
+    }
+
+    @PatchMapping("/location/{idUser}")
+    public ResponseEntity<UserDtoOutput> updateLocationUser(@PathVariable UUID idUser, @RequestBody UserDtoUpdateLocationUserInput userDto){
+        UserDtoOutput userDtoOutput = userService.updateLocationUser(idUser, userDto);
+        return ResponseEntity.ok(userDtoOutput);
+    }
+
+    @PatchMapping("/description/{idUser}")
+    public ResponseEntity<UserDtoOutput> updateDescriptionUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoInsertDescriptionInput userDto){
+        UserDtoOutput userDtoOutput = userService.updateDescriptionUser(idUser, userDto);
+        return ResponseEntity.ok(userDtoOutput);
+    }
+
+    @PatchMapping("/image/{idUser}")
+    public ResponseEntity<UserDtoOutput> updateImageUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoInserImageUserInput userDto){
+        UserDtoOutput userDtoOutput = userService.updateImageUser(idUser, userDto);
+        return ResponseEntity.ok(userDtoOutput);
+    }
+
+    @PatchMapping("/wallpaper/{idUser}")
+    public ResponseEntity<UserDtoOutput> updateWallpaperUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoInsertWallpaperUser userDto){
+        UserDtoOutput userDtoOutput = userService.updateWallpaperUser(idUser, userDto);
+        return ResponseEntity.ok(userDtoOutput);
     }
 
     @GetMapping 
     public ResponseEntity<List<UserDtoOutput>> listUsers(){
         List<UserDtoOutput> listUsers = userService.listUsers();
         return ResponseEntity.ok(listUsers);
+    }
+
+    @GetMapping("/pass") 
+    public ResponseEntity<List<UserModel>> listUsersModel(){
+        List<UserModel> listUsers = userRepository.findAll();
+        return ResponseEntity.ok(listUsers);
+    }
+
+    @DeleteMapping("/location/{idUser}")
+    public ResponseEntity deleteLocationUser(@PathVariable UUID idUser){
+        userService.deleteLocationUser(idUser);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/wallpaper/{idUser}")
+    public ResponseEntity deleteWallpaperUser(@PathVariable UUID idUser){
+        userService.deleteWallpaperUser(idUser);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/image/{idUser}")
+    public ResponseEntity deleteImageUser(@PathVariable UUID idUser){ 
+        userService.deleteImageUser(idUser);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{idUser}")

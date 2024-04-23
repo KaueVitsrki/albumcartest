@@ -20,7 +20,7 @@ public class UserDtoOutput {
     private String country;
     private String state;
     private String city;
-    private String imagePerfil;
+    private String image;
     private String wallpaper;
 
     public UserDtoOutput(UserModel userModel) {
@@ -31,7 +31,7 @@ public class UserDtoOutput {
         this.state = userModel.getState();
         this.city = userModel.getCity();
         this.description = userModel.getDescription();
-        this.imagePerfil = userModel.getImagePerfil();
+        this.image = userModel.getImage();
         this.wallpaper = userModel.getWallpaper();
     }
 

@@ -46,7 +46,7 @@ public class UserModel {
     private String state;
     private String city;
     private String description;
-    private String imagePerfil;
+    private String image;
     private String wallpaper;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
