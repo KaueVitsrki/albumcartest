@@ -8,7 +8,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDtoInsertWallpaperUser {
+public class UserDtoUpdateEmailUserInput {
     @NotBlank
-    private String wallpaper;
+    private String newEmail;
+    @NotBlank
+    private String password;
+    @NotBlank
+    private String passwordConfirmation;
 }

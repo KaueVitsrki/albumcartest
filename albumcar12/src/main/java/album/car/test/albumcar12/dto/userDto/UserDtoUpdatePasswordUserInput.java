@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDtoUpdatePasswordUser {
+public class UserDtoUpdatePasswordUserInput {
     @NotBlank
     private String currentPassword;
     @NotBlank

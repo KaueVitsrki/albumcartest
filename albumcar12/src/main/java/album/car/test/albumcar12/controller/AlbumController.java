@@ -38,7 +38,7 @@ public class AlbumController {
 
     @PostMapping("/image/{idUser}/{idAlbum}")
     public ResponseEntity<AlbumDtoOutput> imageInsertion(@RequestBody @Valid AlbumDtoImageInput imageDto, @PathVariable UUID idUser, @PathVariable UUID idAlbum){
-        AlbumDtoOutput albumOutput = albumService.imageInsertion(imageDto, idUser, idAlbum);
+        AlbumDtoOutput albumOutput = albumService.insertImage(imageDto, idUser, idAlbum);
         return ResponseEntity.ok(albumOutput);
     }
 

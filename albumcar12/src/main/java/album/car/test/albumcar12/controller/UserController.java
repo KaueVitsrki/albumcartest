@@ -20,12 +20,12 @@ import album.car.test.albumcar12.dto.userDto.UserDtoDeleteInput;
 import album.car.test.albumcar12.dto.userDto.UserDtoInserImageUserInput;
 import album.car.test.albumcar12.dto.userDto.UserDtoInsertDescriptionInput;
 import album.car.test.albumcar12.dto.userDto.UserDtoInsertLocationUserInput;
-import album.car.test.albumcar12.dto.userDto.UserDtoInsertWallpaperUser;
+import album.car.test.albumcar12.dto.userDto.UserDtoInsertWallpaperUserInput;
 import album.car.test.albumcar12.dto.userDto.UserDtoOutput;
-import album.car.test.albumcar12.dto.userDto.UserDtoUpdateEmailUser;
+import album.car.test.albumcar12.dto.userDto.UserDtoUpdateEmailUserInput;
 import album.car.test.albumcar12.dto.userDto.UserDtoUpdateLocationUserInput;
-import album.car.test.albumcar12.dto.userDto.UserDtoUpdateNameUser;
-import album.car.test.albumcar12.dto.userDto.UserDtoUpdatePasswordUser;
+import album.car.test.albumcar12.dto.userDto.UserDtoUpdateNameUserInput;
+import album.car.test.albumcar12.dto.userDto.UserDtoUpdatePasswordUserInput;
 import album.car.test.albumcar12.model.UserModel;
 import album.car.test.albumcar12.repository.UserRepository;
 import album.car.test.albumcar12.service.UserService;
@@ -58,7 +58,7 @@ public class UserController {
     }
 
     @PostMapping("/wallpaper/{idUser}")
-    public ResponseEntity<UserDtoOutput> insertWallpaperUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoInsertWallpaperUser userDto){
+    public ResponseEntity<UserDtoOutput> insertWallpaperUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoInsertWallpaperUserInput userDto){
         UserDtoOutput userDtoOutput = userService.insertWallpaperUser(idUser, userDto);
         return new ResponseEntity<UserDtoOutput>(userDtoOutput, HttpStatus.CREATED);
     }
@@ -70,19 +70,19 @@ public class UserController {
     }
 
     @PatchMapping("/name/{idUser}")
-    public ResponseEntity<UserDtoOutput> updateNameUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoUpdateNameUser userDto){
+    public ResponseEntity<UserDtoOutput> updateNameUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoUpdateNameUserInput userDto){
         UserDtoOutput userDtoOutput = userService.updateNameUser(idUser, userDto);
         return ResponseEntity.ok(userDtoOutput);
     }
 
     @PatchMapping("/email/{idUser}")
-    public ResponseEntity<UserDtoOutput> updateEmailUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoUpdateEmailUser userDto){
+    public ResponseEntity<UserDtoOutput> updateEmailUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoUpdateEmailUserInput userDto){
         UserDtoOutput userDtoOutput = userService.updateEmailUser(idUser, userDto);
         return ResponseEntity.ok(userDtoOutput);
     }
 
     @PatchMapping("/password/{idUser}")
-    public ResponseEntity<UserDtoOutput> updatePasswordUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoUpdatePasswordUser userDto){
+    public ResponseEntity<UserDtoOutput> updatePasswordUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoUpdatePasswordUserInput userDto){
         UserDtoOutput userDtoOutput = userService.updatePasswordUser(idUser, userDto);
         return ResponseEntity.ok(userDtoOutput);
     }
@@ -106,7 +106,7 @@ public class UserController {
     }
 
     @PatchMapping("/wallpaper/{idUser}")
-    public ResponseEntity<UserDtoOutput> updateWallpaperUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoInsertWallpaperUser userDto){
+    public ResponseEntity<UserDtoOutput> updateWallpaperUser(@PathVariable UUID idUser, @RequestBody @Valid UserDtoInsertWallpaperUserInput userDto){
         UserDtoOutput userDtoOutput = userService.updateWallpaperUser(idUser, userDto);
         return ResponseEntity.ok(userDtoOutput);
     }

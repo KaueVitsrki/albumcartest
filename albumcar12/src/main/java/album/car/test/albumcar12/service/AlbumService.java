@@ -59,7 +59,7 @@ public class AlbumService {
     }
 
     @Transactional
-    public AlbumDtoOutput imageInsertion(AlbumDtoImageInput imageDto, UUID idUser, UUID idAlbum){
+    public AlbumDtoOutput insertImage(AlbumDtoImageInput imageDto, UUID idUser, UUID idAlbum){
         if(!userRepository.existsById(idUser)){
             throw new EntityNotFoundException("Não foi possível adicionar a imagem! O usuário não existe");
         }

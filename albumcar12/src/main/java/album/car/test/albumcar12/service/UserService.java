@@ -14,12 +14,12 @@ import album.car.test.albumcar12.dto.userDto.UserDtoDeleteInput;
 import album.car.test.albumcar12.dto.userDto.UserDtoInserImageUserInput;
 import album.car.test.albumcar12.dto.userDto.UserDtoInsertDescriptionInput;
 import album.car.test.albumcar12.dto.userDto.UserDtoInsertLocationUserInput;
-import album.car.test.albumcar12.dto.userDto.UserDtoInsertWallpaperUser;
+import album.car.test.albumcar12.dto.userDto.UserDtoInsertWallpaperUserInput;
 import album.car.test.albumcar12.dto.userDto.UserDtoOutput;
-import album.car.test.albumcar12.dto.userDto.UserDtoUpdateEmailUser;
+import album.car.test.albumcar12.dto.userDto.UserDtoUpdateEmailUserInput;
 import album.car.test.albumcar12.dto.userDto.UserDtoUpdateLocationUserInput;
-import album.car.test.albumcar12.dto.userDto.UserDtoUpdateNameUser;
-import album.car.test.albumcar12.dto.userDto.UserDtoUpdatePasswordUser;
+import album.car.test.albumcar12.dto.userDto.UserDtoUpdateNameUserInput;
+import album.car.test.albumcar12.dto.userDto.UserDtoUpdatePasswordUserInput;
 import album.car.test.albumcar12.exception.DescriptionNotCreatedException;
 import album.car.test.albumcar12.exception.EmailExistException;
 import album.car.test.albumcar12.exception.FieldAlreadyCreatedException;
@@ -122,7 +122,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserDtoOutput insertWallpaperUser(UUID idUser, UserDtoInsertWallpaperUser userDto){
+    public UserDtoOutput insertWallpaperUser(UUID idUser, UserDtoInsertWallpaperUserInput userDto){
         if(!userRepository.existsById(idUser)){
             throw new EntityNotFoundException("Usuário não existente");
         }
@@ -142,7 +142,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserDtoOutput updateNameUser(UUID idUser, UserDtoUpdateNameUser userDto){
+    public UserDtoOutput updateNameUser(UUID idUser, UserDtoUpdateNameUserInput userDto){
         if(!userRepository.existsById(idUser)){
             throw new EntityNotFoundException("Usuário não existente");
         }
@@ -156,7 +156,7 @@ public class UserService {
     }
 
     @Transactional 
-    public UserDtoOutput updateEmailUser(UUID idUser, UserDtoUpdateEmailUser userDto){
+    public UserDtoOutput updateEmailUser(UUID idUser, UserDtoUpdateEmailUserInput userDto){
         if(!userRepository.existsById(idUser)){
             throw new EntityNotFoundException("Usuário não existente");
         }
@@ -180,7 +180,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserDtoOutput updatePasswordUser(UUID idUser, UserDtoUpdatePasswordUser userDto){
+    public UserDtoOutput updatePasswordUser(UUID idUser, UserDtoUpdatePasswordUserInput userDto){
         if(!userRepository.existsById(idUser)){
             throw new EntityNotFoundException("Usuário não existente");
         }
@@ -273,7 +273,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserDtoOutput updateWallpaperUser(UUID idUser, UserDtoInsertWallpaperUser userDto){
+    public UserDtoOutput updateWallpaperUser(UUID idUser, UserDtoInsertWallpaperUserInput userDto){
         if(!userRepository.existsById(idUser)){
             throw new EntityNotFoundException("Usuário não existente");
         }
