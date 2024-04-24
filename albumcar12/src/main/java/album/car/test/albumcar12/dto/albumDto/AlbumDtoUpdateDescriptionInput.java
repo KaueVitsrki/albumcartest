@@ -1,5 +1,6 @@
 package album.car.test.albumcar12.dto.albumDto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AlbumDtoUpdateInput {
-    private String name;
+public class AlbumDtoUpdateDescriptionInput {
+    @NotBlank
     private String description;
 }
