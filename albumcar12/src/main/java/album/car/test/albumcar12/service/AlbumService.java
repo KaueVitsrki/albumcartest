@@ -71,7 +71,8 @@ public class AlbumService {
         AlbumModel albumModel = user.getAlbum().stream()
         .filter(album -> album.getId().equals(idAlbum))
         .findFirst()
-        .orElseThrow(() -> new NoSuchElementException("O usuário fornecido não possui nenhum album correspondente a o id fornecido"));
+        .orElseThrow(() -> new NoSuchElementException("O usuário não possui nenhum album com o id fornecido"));
+        
         List<String> listImage = imageDto.getImage();
         listImage.stream()
         .map(image -> albumModel.getImage().add(image))

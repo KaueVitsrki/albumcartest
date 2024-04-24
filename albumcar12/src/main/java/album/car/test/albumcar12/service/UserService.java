@@ -46,12 +46,12 @@ public class UserService {
     public UserDtoOutput createUser(UserDtoCreateInput userDto){
         UserModel userModel = modelMapper.map(userDto, UserModel.class);
 
-        if(!passwordService.validate(userDto.getPassword()).isEmpty()){
-            List<String> passwordStrings = passwordService.validate(userDto.getPassword());
+        List<String> passwordStrings = passwordService.validate(userDto.getPassword());
+        if(!passwordStrings.isEmpty()){
             throw new InvalidPassword(passwordStrings.toString());
         }
 
-        String password = new BCryptPasswordEncoder().encode(userModel.getPassword());
+        String password = passwordEncoder.encode(userModel.getPassword());
         userModel.setPassword(password);
         userModel.setAlbum(new ArrayList<>());
         userModel.setDiary(new ArrayList<>());
@@ -188,15 +188,19 @@ public class UserService {
         UserModel user = userRepository.findUserById(idUser);
         boolean currentPasswordMatch = matches(userDto.getCurrentPassword(), user.getPassword()); 
         
-        if(!currentPasswordMatch || !userDto.getNewPassword().equals(userDto.getNewPasswordConfirmation())){
-            throw new InvalidPassword("Senha errada! Ou o conteúdo dos campos é diferente");
+        if(!currentPasswordMatch){
+            throw new InvalidPassword("Senha errada!");
         }
-        if(!passwordService.validate(userDto.getNewPassword()).isEmpty()){
-            List<String> passwordStrings = passwordService.validate(userDto.getNewPassword());
+        if(!userDto.getNewPassword().equals(userDto.getNewPasswordConfirmation())){
+            throw new InvalidFieldsException("Os campos possuem conteúdos diferentes");
+        }
+
+        List<String> passwordStrings = passwordService.validate(userDto.getNewPassword());
+        if(!passwordStrings.isEmpty()){
             throw new InvalidPassword(passwordStrings.toString());
         }
 
-        String newPassword = new BCryptPasswordEncoder().encode(userDto.getNewPassword());
+        String newPassword = passwordEncoder.encode(userDto.getNewPassword());
         user.setPassword(newPassword);
         userRepository.save(user);
         UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
