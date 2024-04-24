@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AlbumDtoImageInput {
+public class AlbumDtoUpdateNameInput {
     @NotBlank
-    private String image;
+    private String name;
 }
