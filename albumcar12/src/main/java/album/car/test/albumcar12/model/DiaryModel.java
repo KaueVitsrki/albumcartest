@@ -16,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,7 +38,8 @@ public class DiaryModel {
     @Column(nullable = false, updatable = false)
     private Timestamp data;
     
-    private List<String> youtubeLinks;
+    private String youtubeLink;
+    @Size(max=4)
     private List<String> images;
 
     @ManyToOne
