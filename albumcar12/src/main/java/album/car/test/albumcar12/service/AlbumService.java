@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,7 +100,7 @@ public class AlbumService {
             throw new EntityNotFoundException("Não foi possível atualizar o campo! O usuário não existe");
         }
         if(!albumRepository.existsById(idAlbum)){
-            throw new EntityNotFoundException("Não foi possível adicionar a imagem! O album não existente");
+            throw new EntityNotFoundException("Não foi possível atualizar o campo! O album não existente");
         }
 
         UserModel user = userRepository.findUserById(idUser);
@@ -130,7 +129,7 @@ public class AlbumService {
             throw new EntityNotFoundException("Não foi possível atualizar o campo! O usuário não existe");
         }
         if(!albumRepository.existsById(idAlbum)){
-            throw new EntityNotFoundException("Não foi possível adicionar a imagem! O album não existente");
+            throw new EntityNotFoundException("Não foi possível atualizar o campo! O album não existente");
         }
 
         UserModel user = userRepository.findUserById(idUser);
@@ -160,10 +159,10 @@ public class AlbumService {
     @Transactional
     public void deleteImageAlbum(UUID idUser, UUID idAlbum, AlbumDtoDeleteImageInput imageDto){
         if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Não foi possível deletar o album, usuário não existente");
+            throw new EntityNotFoundException("Não foi possível deletar a imagem, usuário não existente");
         }
         if(!albumRepository.existsById(idAlbum)){
-            throw new EntityNotFoundException("Não foi possível adicionar a imagem! O album não existente");
+            throw new EntityNotFoundException("Não foi possível deletar a imagem! O album não existente");
         }
 
         UserModel user = userRepository.findUserById(idUser);
@@ -189,7 +188,7 @@ public class AlbumService {
             throw new EntityNotFoundException("Não foi possível deletar o album, usuário não existente");
         }
         if(!albumRepository.existsById(idAlbum)){
-            throw new EntityNotFoundException("Não foi possível adicionar a imagem! O album não existente");
+            throw new EntityNotFoundException("Não foi possível deletar o album! O album não existente");
         }
 
         UserModel user = userRepository.findUserById(idUser);
