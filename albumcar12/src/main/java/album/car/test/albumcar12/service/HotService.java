@@ -7,7 +7,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import album.car.test.albumcar12.dto.HotDto;
+import album.car.test.albumcar12.dto.hotDto.HotDto;
 import album.car.test.albumcar12.exception.UserGiveHotException;
 import album.car.test.albumcar12.model.AlbumModel;
 import album.car.test.albumcar12.model.HotModel;

@@ -39,6 +39,7 @@ public class DiaryModel {
     private Timestamp data;
     
     private String youtubeLink;
+    
     @Size(max=4)
     private List<String> images;
 
