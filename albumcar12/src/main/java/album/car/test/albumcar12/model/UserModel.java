@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.validator.constraints.Length;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import album.car.test.albumcar12.dto.loginDto.LoginDtoInput;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,19 +29,23 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users")
-public class UserModel {
+public class UserModel{
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(unique = true)
     private UUID id;
     
-    @Email @NotBlank @Column(unique = true)
+    @Email 
+    @NotBlank 
+    @Column(unique = true)
     private String email;
     
     @NotBlank
     private String password;
     
-    @Length(min = 3) @NotBlank
+    @Length(min = 3) 
+    @NotBlank 
+    @Column(unique = true)
     private String name;
 
     private String country;
@@ -48,6 +54,8 @@ public class UserModel {
     private String description;
     private String image;
     private String wallpaper;
+
+    private UserRole role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JsonIgnore
@@ -60,4 +68,8 @@ public class UserModel {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JsonIgnore
     private List<HotModel> hot;
+
+    public boolean isLoginCorrect(LoginDtoInput loginDto, PasswordEncoder passwordEncoder) {
+        return passwordEncoder.matches(loginDto.getPassword(), this.password);
+    }
 }

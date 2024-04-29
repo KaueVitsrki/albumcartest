@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import album.car.test.albumcar12.dto.HotDto;
+import album.car.test.albumcar12.dto.hotDto.HotDto;
 import album.car.test.albumcar12.service.HotService;
 
 @RestController

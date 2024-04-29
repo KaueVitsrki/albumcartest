@@ -1,4 +1,4 @@
-package album.car.test.albumcar12.dto;
+package album.car.test.albumcar12.dto.hotDto;
 
 import java.util.UUID;
 

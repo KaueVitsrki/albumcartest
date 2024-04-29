@@ -32,10 +32,13 @@ public class AlbumModel {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(unique = true)
     private UUID id;
+    
     @NotBlank
     private String name;
+
     @NotBlank
     private String description;
+
     @Size(max = 4)
     private List<String> image;
 
