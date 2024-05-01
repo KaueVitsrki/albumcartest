@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import album.car.test.albumcar12.dto.albumDto.AlbumDtoCreateInput;
@@ -36,13 +37,10 @@ public class AlbumService {
     private ModelMapper modelMapper;
 
     @Transactional
-    public AlbumDtoOutput createAlbum(UUID idUser, AlbumDtoCreateInput albumDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Não foi possível criar um novo album, usuário não existente");
-        }
+    public AlbumDtoOutput createAlbum(JwtAuthenticationToken token, AlbumDtoCreateInput albumDto){
+        UserModel userLogged = userLogged(token);
 
-        UserModel user = userRepository.findUserById(idUser);
-        boolean nameAlbumExist = user.getAlbum().stream()
+        boolean nameAlbumExist = userLogged.getAlbum().stream()
         .anyMatch(album -> album.getName().equals(albumDto.getName()));
 
         if(nameAlbumExist){
@@ -53,25 +51,23 @@ public class AlbumService {
         albumModel.setImage(new ArrayList<>());
         albumModel.setDiary(new ArrayList<>());
         albumModel.setHot(new ArrayList<>());
-        albumModel.setUser(user);
-        user.getAlbum().add(albumModel);
-        userRepository.save(user);
+        albumModel.setUser(userLogged);
+        userLogged.getAlbum().add(albumModel);
+        userRepository.save(userLogged);
         AlbumDtoOutput albumOutput = modelMapper.map(albumModel, AlbumDtoOutput.class);
 
         return albumOutput;
     }
 
     @Transactional
-    public AlbumDtoOutput insertImageAlbum(AlbumDtoImageInput imageDto, UUID idUser, UUID idAlbum){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Não foi possível adicionar a imagem! O usuário não existe");
-        }
+    public AlbumDtoOutput insertImageAlbum(JwtAuthenticationToken token, AlbumDtoImageInput imageDto, UUID idAlbum){
+        UserModel userLogged = userLogged(token);
+
         if(!albumRepository.existsById(idAlbum)){
             throw new EntityNotFoundException("Não foi possível adicionar a imagem! O album não existente");
         }
 
-        UserModel user = userRepository.findUserById(idUser);
-        AlbumModel albumModel = user.getAlbum().stream()
+        AlbumModel albumModel = userLogged.getAlbum().stream()
         .filter(album -> album.getId().equals(idAlbum))
         .findFirst()
         .orElseThrow(() -> new NoSuchElementException("O usuário não possui nenhum album com o id fornecido"));
@@ -95,23 +91,21 @@ public class AlbumService {
     }
 
     @Transactional
-    public AlbumDtoOutput updateNameAlbum(UUID idUser, UUID idAlbum, AlbumDtoUpdateNameInput albumDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Não foi possível atualizar o campo! O usuário não existe");
-        }
+    public AlbumDtoOutput updateNameAlbum(JwtAuthenticationToken token, UUID idAlbum, AlbumDtoUpdateNameInput albumDto){
+        UserModel userLogged = userLogged(token);
+
         if(!albumRepository.existsById(idAlbum)){
             throw new EntityNotFoundException("Não foi possível atualizar o campo! O album não existente");
         }
 
-        UserModel user = userRepository.findUserById(idUser);
-        boolean nameAlbumExist = user.getAlbum().stream()
+        boolean nameAlbumExist = userLogged.getAlbum().stream()
         .anyMatch(album -> album.getName().equals(albumDto.getName()));
 
         if(nameAlbumExist){
             throw new NameAlbumAlreadyExistsException("Não foi possível atualizar o album! Já existe um album com o mesmo nome.");
         }
 
-        AlbumModel albumModel = user.getAlbum().stream()
+        AlbumModel albumModel = userLogged.getAlbum().stream()
         .filter(album -> album.getId().equals(idAlbum))
         .findFirst()
         .orElseThrow(() -> new NoSuchElementException("Não foi possível encontrar o album"));
@@ -124,16 +118,14 @@ public class AlbumService {
     }
 
     @Transactional
-    public AlbumDtoOutput updateDescriptionAlbum(UUID idUser, UUID idAlbum, AlbumDtoUpdateDescriptionInput albumDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Não foi possível atualizar o campo! O usuário não existe");
-        }
+    public AlbumDtoOutput updateDescriptionAlbum(JwtAuthenticationToken token, UUID idAlbum, AlbumDtoUpdateDescriptionInput albumDto){
+        UserModel userLogged = userLogged(token);
+
         if(!albumRepository.existsById(idAlbum)){
             throw new EntityNotFoundException("Não foi possível atualizar o campo! O album não existente");
         }
 
-        UserModel user = userRepository.findUserById(idUser);
-        AlbumModel albumModel = user.getAlbum().stream()
+        AlbumModel albumModel = userLogged.getAlbum().stream()
         .filter(album -> album.getId().equals(idAlbum))
         .findFirst()
         .orElseThrow(() -> new NoSuchElementException("Não foi possível encontrar o album"));
@@ -145,28 +137,22 @@ public class AlbumService {
         return albumDtoOutput;
     }
 
-    public List<AlbumDtoOutput> listAlbum(UUID idUser){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Não foi possível criar um novo album, usuário não existente");
-        }
-
-        UserModel user = userRepository.findUserById(idUser);
-        List<AlbumModel> listAlbum = user.getAlbum();
+    public List<AlbumDtoOutput> listAlbum(JwtAuthenticationToken token){
+        UserModel userLogged = userLogged(token);
+        List<AlbumModel> listAlbum = userLogged.getAlbum();
 
         return AlbumDtoOutput.convert(listAlbum);
     }
 
     @Transactional
-    public void deleteImageAlbum(UUID idUser, UUID idAlbum, AlbumDtoDeleteImageInput imageDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Não foi possível deletar a imagem, usuário não existente");
-        }
+    public void deleteImageAlbum(JwtAuthenticationToken token, UUID idAlbum, AlbumDtoDeleteImageInput imageDto){
+        UserModel userLogged = userLogged(token);
+
         if(!albumRepository.existsById(idAlbum)){
             throw new EntityNotFoundException("Não foi possível deletar a imagem! O album não existente");
         }
 
-        UserModel user = userRepository.findUserById(idUser);
-        AlbumModel albumModel = user.getAlbum().stream()
+        AlbumModel albumModel = userLogged.getAlbum().stream()
         .filter(album -> album.getId().equals(idAlbum))
         .findFirst()
         .orElseThrow(() -> new NoSuchElementException("Não foi possível encontrar o album"));
@@ -183,21 +169,24 @@ public class AlbumService {
     }
 
     @Transactional
-    public void deleteAlbum(UUID idUser, UUID idAlbum){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Não foi possível deletar o album, usuário não existente");
-        }
+    public void deleteAlbum(JwtAuthenticationToken token, UUID idAlbum){
+        UserModel userLogged = userLogged(token);
+
         if(!albumRepository.existsById(idAlbum)){
             throw new EntityNotFoundException("Não foi possível deletar o album! O album não existente");
         }
 
-        UserModel user = userRepository.findUserById(idUser);
-        AlbumModel albumToDelete = user.getAlbum().stream()
+        AlbumModel albumToDelete = userLogged.getAlbum().stream()
         .filter(album -> album.getId().equals(idAlbum))
         .findFirst()
         .orElseThrow(() -> new NoSuchElementException("Não foi possível encontrar o album"));
 
-        user.getAlbum().remove(albumToDelete);
-        userRepository.save(user);
+        userLogged.getAlbum().remove(albumToDelete);
+        userRepository.save(userLogged);
+    }
+
+    private UserModel userLogged(JwtAuthenticationToken token){        
+        return userRepository.findById(UUID.fromString(token.getName()))
+        .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
     }
 }   

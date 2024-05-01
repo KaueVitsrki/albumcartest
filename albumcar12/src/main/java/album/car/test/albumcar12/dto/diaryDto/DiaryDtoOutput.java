@@ -16,14 +16,14 @@ import lombok.NoArgsConstructor;
 public class DiaryDtoOutput {
     private UUID id;
     private String text;
-    private String youtubeLink;
+    private String youtubeVideo;
     private List<String> images;
     private UserModel user;
 
     public DiaryDtoOutput(DiaryModel diaryModel) {
         this.id = diaryModel.getId();
         this.text = diaryModel.getText();
-        this.youtubeLink = diaryModel.getYoutubeLink();
+        this.youtubeVideo = diaryModel.getYoutubeVideo();
         this.images = diaryModel.getImages();
         this.user = diaryModel.getUser();
     }

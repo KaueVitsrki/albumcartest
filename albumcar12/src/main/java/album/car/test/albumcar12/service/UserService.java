@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import album.car.test.albumcar12.dto.userDto.UserDtoCreateInput;
@@ -63,130 +64,106 @@ public class UserService {
     }
 
     @Transactional
-    public UserDtoOutput insertDescriptionUser(UUID idUser, UserDtoInsertDescriptionInput userDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Usuário não existente");
-        }
+    public UserDtoOutput insertDescriptionUser(JwtAuthenticationToken token, UserDtoInsertDescriptionInput userDto){
+        UserModel userLogged = userLogged(token);
 
-        UserModel user = userRepository.findUserById(idUser);
-
-        if(user.getDescription() != null){
+        if(userLogged.getDescription() != null){
             throw new FieldAlreadyCreatedException("Não foi possível criar o campo, pois ele já existe!");
         }
 
-        user.setDescription(userDto.getDescription());
-        userRepository.save(user);
-        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+        userLogged.setDescription(userDto.getDescription());
+        userRepository.save(userLogged);
+        UserDtoOutput userDtoOutput = modelMapper.map(userLogged, UserDtoOutput.class);
 
         return userDtoOutput;
     }
 
     @Transactional 
-    public UserDtoOutput insertLocationUser(UUID idUser, UserDtoInsertLocationUserInput userDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Usuário não existente");
-        }
+    public UserDtoOutput insertLocationUser(JwtAuthenticationToken token, UserDtoInsertLocationUserInput userDto){
+        UserModel userLogged = userLogged(token);
 
-        UserModel user = userRepository.findUserById(idUser);
-
-        if(user.getCountry() != null){
+        if(userLogged.getCountry() != null){
             throw new FieldAlreadyCreatedException("Não foi possível criar o campo, pois ele já existe!");
         }
 
-        user.setCountry(userDto.getCountry());
-        user.setState(userDto.getState());
-        user.setCity(userDto.getCity());
-        userRepository.save(user);
-        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+        userLogged.setCountry(userDto.getCountry());
+        userLogged.setState(userDto.getState());
+        userLogged.setCity(userDto.getCity());
+        userRepository.save(userLogged);
+        UserDtoOutput userDtoOutput = modelMapper.map(userLogged, UserDtoOutput.class);
 
         return userDtoOutput;
     }
 
     @Transactional 
-    public UserDtoOutput insertImageUser(UUID idUser, UserDtoInserImageUserInput userDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Usuário não existente");
-        }
+    public UserDtoOutput insertImageUser(JwtAuthenticationToken token, UserDtoInserImageUserInput userDto){
+        UserModel userLogged = userLogged(token);
 
-        UserModel user = userRepository.findUserById(idUser);
-
-        if(user.getImage() != null){
+        if(userLogged.getImage() != null){
             throw new FieldAlreadyCreatedException("Não foi possível criar o campo, pois ele já existe!");
         }
 
-        user.setImage(userDto.getImage());
-        userRepository.save(user);
-        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+        userLogged.setImage(userDto.getImage());
+        userRepository.save(userLogged);
+        UserDtoOutput userDtoOutput = modelMapper.map(userLogged, UserDtoOutput.class);
         
         return userDtoOutput;
     }
 
     @Transactional
-    public UserDtoOutput insertWallpaperUser(UUID idUser, UserDtoInsertWallpaperUserInput userDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Usuário não existente");
-        }
+    public UserDtoOutput insertWallpaperUser(JwtAuthenticationToken token, UserDtoInsertWallpaperUserInput userDto){
+        UserModel userLogged = userLogged(token);
 
-        UserModel user = userRepository.findUserById(idUser);
-
-        if(user.getWallpaper() != null){
+        if(userLogged.getWallpaper() != null){
             throw new FieldAlreadyCreatedException("Não foi possível criar o campo, pois ele já existe!");
         }
         
-        user.setWallpaper(userDto.getWallpaper());
-        userRepository.save(user);
-        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+        userLogged.setWallpaper(userDto.getWallpaper());
+        userRepository.save(userLogged);
+        UserDtoOutput userDtoOutput = modelMapper.map(userLogged, UserDtoOutput.class);
 
         return userDtoOutput;
 
     }
 
     @Transactional
-    public UserDtoOutput updateNameUser(UUID idUser, UserDtoUpdateNameUserInput userDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Usuário não existente");
-        }
+    public UserDtoOutput updateNameUser(JwtAuthenticationToken token, UserDtoUpdateNameUserInput userDto){
+        UserModel userLogged = userLogged(token);
 
-        UserModel user = userRepository.findUserById(idUser);
-        user.setName(userDto.getName());
-        userRepository.save(user);
-        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+        userLogged.setName(userDto.getName());
+        userRepository.save(userLogged);
+        UserDtoOutput userDtoOutput = modelMapper.map(userLogged, UserDtoOutput.class);
 
         return userDtoOutput;
     }
 
     @Transactional 
-    public UserDtoOutput updateEmailUser(UUID idUser, UserDtoUpdateEmailUserInput userDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Usuário não existente");
-        }
+    public UserDtoOutput updateEmailUser(JwtAuthenticationToken token, UserDtoUpdateEmailUserInput userDto){
+        UserModel userLogged = userLogged(token);
+
         if(userRepository.existsByEmail(userDto.getNewEmail())){
             throw new EmailExistException("Não foi possível atualizar o email! O email informado já foi cadastrado");
         }
 
-        UserModel user = userRepository.findUserById(idUser);
-        boolean passwordMatch = matches(userDto.getPassword(), user.getPassword()); 
-        boolean passwordConfirmationMatch = matches(userDto.getPasswordConfirmation(), user.getPassword());
+        boolean passwordMatch = matches(userDto.getPassword(), userLogged.getPassword()); 
+        boolean passwordConfirmationMatch = matches(userDto.getPasswordConfirmation(), userLogged.getPassword());
 
         if(!passwordMatch || !passwordConfirmationMatch || passwordMatch != passwordConfirmationMatch){
             throw new InvalidFieldsException("Um ou todos os campos estão inválidos");
         }
 
-        user.setEmail(userDto.getNewEmail());
-        userRepository.save(user);
-        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+        userLogged.setEmail(userDto.getNewEmail());
+        userRepository.save(userLogged);
+        UserDtoOutput userDtoOutput = modelMapper.map(userLogged, UserDtoOutput.class);
         
         return userDtoOutput;
     }
 
     @Transactional
-    public UserDtoOutput updatePasswordUser(UUID idUser, UserDtoUpdatePasswordUserInput userDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Usuário não existente");
-        }
-        
-        UserModel user = userRepository.findUserById(idUser);
-        boolean currentPasswordMatch = matches(userDto.getCurrentPassword(), user.getPassword()); 
+    public UserDtoOutput updatePasswordUser(JwtAuthenticationToken token, UserDtoUpdatePasswordUserInput userDto){
+        UserModel userLogged = userLogged(token);
+
+        boolean currentPasswordMatch = matches(userDto.getCurrentPassword(), userLogged.getPassword()); 
         
         if(!currentPasswordMatch){
             throw new InvalidPassword("Senha errada!");
@@ -201,96 +178,80 @@ public class UserService {
         }
 
         String newPassword = passwordEncoder.encode(userDto.getNewPassword());
-        user.setPassword(newPassword);
-        userRepository.save(user);
-        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+        userLogged.setPassword(newPassword);
+        userRepository.save(userLogged);
+        UserDtoOutput userDtoOutput = modelMapper.map(userLogged, UserDtoOutput.class);
 
         return userDtoOutput;
     }
 
     @Transactional
-    public UserDtoOutput updateDescriptionUser(UUID idUser, UserDtoInsertDescriptionInput userDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Usuário não existente");
-        }
+    public UserDtoOutput updateDescriptionUser(JwtAuthenticationToken token, UserDtoInsertDescriptionInput userDto){
+        UserModel userLogged = userLogged(token);
 
-        UserModel user = userRepository.findUserById(idUser);
-
-        if(user.getDescription() == null){ // mudei de .equals(null)
+        if(userLogged.getDescription() == null){ // mudei de .equals(null)
             throw new DescriptionNotCreatedException("A descrição não foi criada!");
         }
 
-        user.setDescription(userDto.getDescription());
-        userRepository.save(user);
-        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+        userLogged.setDescription(userDto.getDescription());
+        userRepository.save(userLogged);
+        UserDtoOutput userDtoOutput = modelMapper.map(userLogged, UserDtoOutput.class);
 
         return userDtoOutput;
     }
 
     @Transactional
-    public UserDtoOutput updateLocationUser(UUID idUser, UserDtoUpdateLocationUserInput userDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Usuário não existente");
-        }
+    public UserDtoOutput updateLocationUser(JwtAuthenticationToken token, UserDtoUpdateLocationUserInput userDto){
+        UserModel userLogged = userLogged(token);
 
-        UserModel user = userRepository.findUserById(idUser);
-
-        if(user.getCountry() == null){
+        if(userLogged.getCountry() == null){
             throw new EntityNotFoundException("Adicione primeiro o país");
         }
         if(userDto.getCountry() == null){
-            userDto.setCountry(user.getCountry());
+            userDto.setCountry(userLogged.getCountry());
         }
         if(userDto.getState() == null){
-            userDto.setState(user.getState());
+            userDto.setState(userLogged.getState());
         }
         if(userDto.getCity() == null){
-            userDto.setCity(user.getCity());
+            userDto.setCity(userLogged.getCity());
         }
 
-        user.setCountry(userDto.getCountry());
-        user.setState(userDto.getState());
-        user.setCity(userDto.getCity());
-        userRepository.save(user);
-        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+        userLogged.setCountry(userDto.getCountry());
+        userLogged.setState(userDto.getState());
+        userLogged.setCity(userDto.getCity());
+        userRepository.save(userLogged);
+        UserDtoOutput userDtoOutput = modelMapper.map(userLogged, UserDtoOutput.class);
 
         return userDtoOutput;
     }
 
     @Transactional 
-    public UserDtoOutput updateImageUser(UUID idUser, UserDtoInserImageUserInput userDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Usuário não existente");
-        }
+    public UserDtoOutput updateImageUser(JwtAuthenticationToken token, UserDtoInserImageUserInput userDto){
+        UserModel userLogged = userLogged(token);
 
-        UserModel user = userRepository.findUserById(idUser);
-
-        if(user.getImage() == null){ // mudei de .equals(null)
+        if(userLogged.getImage() == null){ 
             throw new ImageNotCreatedException("A imagem não foi adicionada!");
         }
 
-        user.setImage(userDto.getImage());
-        userRepository.save(user);
-        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+        userLogged.setImage(userDto.getImage());
+        userRepository.save(userLogged);
+        UserDtoOutput userDtoOutput = modelMapper.map(userLogged, UserDtoOutput.class);
         
         return userDtoOutput;
     }
 
     @Transactional
-    public UserDtoOutput updateWallpaperUser(UUID idUser, UserDtoInsertWallpaperUserInput userDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Usuário não existente");
-        }
+    public UserDtoOutput updateWallpaperUser(JwtAuthenticationToken token, UserDtoInsertWallpaperUserInput userDto){
+        UserModel userLogged = userLogged(token);
 
-        UserModel user = userRepository.findUserById(idUser);
-
-        if(user.getWallpaper() == null){ // mudei de .equals(null)
+        if(userLogged.getWallpaper() == null){ 
             throw new ImageNotCreatedException("A imagem não foi adicionada!");
         }
        
-        user.setWallpaper(userDto.getWallpaper());
-        userRepository.save(user);
-        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+        userLogged.setWallpaper(userDto.getWallpaper());
+        userRepository.save(userLogged);
+        UserDtoOutput userDtoOutput = modelMapper.map(userLogged, UserDtoOutput.class);
 
         return userDtoOutput;
     }
@@ -301,58 +262,51 @@ public class UserService {
     } 
 
     @Transactional
-    public void deleteWallpaperUser(UUID idUser){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Usuário não existente");
-        }
+    public void deleteWallpaperUser(JwtAuthenticationToken token){
+        UserModel userLogged = userLogged(token);
 
-        UserModel user = userRepository.findUserById(idUser);
-        user.setWallpaper(null);
-        userRepository.save(user);
+        userLogged.setWallpaper(null);
+        userRepository.save(userLogged);
     }
 
     @Transactional
-    public UserDtoOutput deleteLocationUser(UUID idUser){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Usuário não existente");
-        }
+    public UserDtoOutput deleteLocationUser(JwtAuthenticationToken token){
+        UserModel userLogged = userLogged(token);
 
-        UserModel user = userRepository.findUserById(idUser);
-        user.setCountry(null);
-        user.setState(null);
-        user.setCity(null);
-        userRepository.save(user);
-        UserDtoOutput userDtoOutput = modelMapper.map(user, UserDtoOutput.class);
+        userLogged.setCountry(null);
+        userLogged.setState(null);
+        userLogged.setCity(null);
+        userRepository.save(userLogged);
+        UserDtoOutput userDtoOutput = modelMapper.map(userLogged, UserDtoOutput.class);
 
         return userDtoOutput;
     }
 
     @Transactional
-    public void deleteImageUser(UUID idUser){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Usuário não existente");
-        }
+    public void deleteImageUser(JwtAuthenticationToken token){
+        UserModel userLogged = userLogged(token);
 
-        UserModel user = userRepository.findUserById(idUser);
-        user.setImage(null);
-        userRepository.save(user);
+        userLogged.setImage(null);
+        userRepository.save(userLogged);
     }
 
     @Transactional
-    public void deleteUser(UUID idUser, UserDtoDeleteInput userDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Usuário não existente");
-        }
+    public void deleteUser(JwtAuthenticationToken token, UserDtoDeleteInput userDto){
+        UserModel userLogged = userLogged(token);
 
-        UserModel user = userRepository.findUserById(idUser);
-        boolean emailMatch = userDto.getEmail().equals(user.getEmail());
-        boolean passwordMatch = matches(userDto.getPassword(), user.getPassword()); 
+        boolean emailMatch = userDto.getEmail().equals(userLogged.getEmail());
+        boolean passwordMatch = matches(userDto.getPassword(), userLogged.getPassword()); 
 
         if(!emailMatch || !passwordMatch){
             throw new InvalidFieldsException("Um ou todos os campos estão inválidos");
         }
 
-        userRepository.deleteById(idUser);
+        userRepository.deleteById(userLogged.getId());
+    }
+
+    private UserModel userLogged(JwtAuthenticationToken token){        
+        return userRepository.findById(UUID.fromString(token.getName()))
+        .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
     }
 
     private boolean matches(String rawPassword, String encodedPassword) {

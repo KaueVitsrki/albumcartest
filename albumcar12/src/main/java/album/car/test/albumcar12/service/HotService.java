@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import album.car.test.albumcar12.dto.hotDto.HotDto;
@@ -27,62 +28,75 @@ public class HotService {
     private ModelMapper modelMapper;
 
     @Transactional
-    public HotDto createHot(UUID idUser, UUID idAlbum){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Não foi possível criar o diary! O usuário não existe");
-        }
+    public HotDto createHot(JwtAuthenticationToken token, UUID idAlbum){
+        UserModel userLogged = userLogged(token);
+
         if(!albumRepository.existsById(idAlbum)){
             throw new EntityNotFoundException("Não foi possível criar o diary! O album não existe");
         }
 
-        UserModel user = userRepository.findUserById(idUser);
         AlbumModel albumModel = albumRepository.findAlbumById(idAlbum);
-        boolean userAlreadyRatedAlbum  = user.getHot().stream().anyMatch(hot -> hot.getAlbum().getId().equals(albumModel.getId()));
-        boolean albumAlreadyRatedByUser  = albumModel.getHot().stream().anyMatch(hot -> hot.getUser().getId().equals(user.getId()));
+        boolean userAlreadyRatedAlbum  = userLogged.getHot().stream().anyMatch(hot -> hot.getAlbum().getId().equals(albumModel.getId()));
+        boolean albumAlreadyRatedByUser  = albumModel.getHot().stream().anyMatch(hot -> hot.getUser().getId().equals(userLogged.getId()));
 
         if(userAlreadyRatedAlbum || albumAlreadyRatedByUser){
             throw new UserGiveHotException("Não foi possível avaliar o album, você já o avaliou");
         }
 
+        boolean userIsOwnerOfAlbum = albumModel.getUser().getId().equals(userLogged.getId());
+
+        if(userIsOwnerOfAlbum){
+            HotModel hotModel = new HotModel();
+            hotModel.setAlbum(albumModel);
+            hotModel.setUser(userLogged);
+            userLogged.getHot().add(hotModel);
+            albumModel.getHot().add(hotModel);
+            userRepository.save(userLogged);
+            albumRepository.save(albumModel);
+            HotDto convertHot = modelMapper.map(hotModel, HotDto.class);
+            
+            return convertHot;
+        }
+
         HotModel hotModel = new HotModel();
         hotModel.setAlbum(albumModel);
-        hotModel.setUser(user);
-        user.getHot().add(hotModel);
+        hotModel.setUser(userLogged);
         albumModel.getHot().add(hotModel);
-        userRepository.save(user);
         albumRepository.save(albumModel);
         HotDto convertHot = modelMapper.map(hotModel, HotDto.class);
-        
+
         return convertHot;
     }
 
     @Transactional
-    public void deleteHot(UUID idUser, UUID idAlbum, UUID idHot){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Não foi possível remover o hot! O usuário não existe");
-        }
+    public void deleteHot(JwtAuthenticationToken token, UUID idAlbum){
+        UserModel userLogged = userLogged(token);
+
         if(!albumRepository.existsById(idAlbum)){
             throw new EntityNotFoundException("Não foi possível remover o hot! O album não existe");
         }
 
-        UserModel user = userRepository.findUserById(idUser);
         AlbumModel albumModel = albumRepository.findAlbumById(idAlbum);
-        boolean userAlreadyRatedAlbum  = user.getHot().stream().anyMatch(hot -> hot.getAlbum().getId().equals(albumModel.getId()));
-        boolean albumAlreadyRatedByUser  = albumModel.getHot().stream().anyMatch(hot -> hot.getUser().getId().equals(user.getId()));
+        boolean userAlreadyRatedAlbum  = userLogged.getHot().stream().anyMatch(hot -> hot.getAlbum().getId().equals(albumModel.getId()));
+        boolean albumAlreadyRatedByUser  = albumModel.getHot().stream().anyMatch(hot -> hot.getUser().getId().equals(userLogged.getId()));
 
         if(!userAlreadyRatedAlbum || !albumAlreadyRatedByUser){
             throw new UserGiveHotException("Não foi possível remover o hot, você não o avaliou");
         }
 
-        HotModel removeHot = user.getHot().stream()
-        .filter(hot -> hot.getId().equals(idHot))
+        HotModel removeHot = userLogged.getHot().stream()
+        .filter(hot -> hot.getUser().getId().equals(userLogged.getId()) && hot.getAlbum().getId().equals(albumModel.getId()))
         .findFirst()
         .orElseThrow(() -> new NoSuchElementException("Não foi possível encontrar o hot"));
 
-        user.getHot().remove(removeHot);
+        userLogged.getHot().remove(removeHot);
         albumModel.getHot().remove(removeHot);
-        userRepository.save(user);
+        userRepository.save(userLogged);
         albumRepository.save(albumModel);
     }
 
+       private UserModel userLogged(JwtAuthenticationToken token){        
+        return userRepository.findById(UUID.fromString(token.getName()))
+        .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+    }
 }

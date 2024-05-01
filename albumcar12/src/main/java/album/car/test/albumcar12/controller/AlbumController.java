@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -30,45 +31,45 @@ public class AlbumController {
     @Autowired
     private AlbumService albumService;
 
-    @PostMapping("/{idUser}") 
-    public ResponseEntity<AlbumDtoOutput> createAlbum(@PathVariable UUID idUser, @RequestBody @Valid AlbumDtoCreateInput albumDto){
-        AlbumDtoOutput createAlbum = albumService.createAlbum(idUser, albumDto);
+    @PostMapping 
+    public ResponseEntity<AlbumDtoOutput> createAlbum(JwtAuthenticationToken token, @RequestBody @Valid AlbumDtoCreateInput albumDto){
+        AlbumDtoOutput createAlbum = albumService.createAlbum(token, albumDto);
         return new ResponseEntity<AlbumDtoOutput>(createAlbum, HttpStatus.CREATED);
     }
 
-    @PostMapping("/image/{idUser}/{idAlbum}")
-    public ResponseEntity<AlbumDtoOutput> insertImageAlbum(@PathVariable UUID idUser, @PathVariable UUID idAlbum, @RequestBody AlbumDtoImageInput imageDto){
-        AlbumDtoOutput albumOutput = albumService.insertImageAlbum(imageDto, idUser, idAlbum);
+    @PostMapping("/image/{idAlbum}")
+    public ResponseEntity<AlbumDtoOutput> insertImageAlbum(JwtAuthenticationToken token, @PathVariable UUID idAlbum, @RequestBody AlbumDtoImageInput imageDto){
+        AlbumDtoOutput albumOutput = albumService.insertImageAlbum(token, imageDto, idAlbum);
         return ResponseEntity.ok(albumOutput);
     }
 
-    @PatchMapping("/name/{idUser}/{idAlbum}")
-    public ResponseEntity<AlbumDtoOutput> updateNameAlbum(@PathVariable UUID idUser, @PathVariable UUID idAlbum, @RequestBody @Valid AlbumDtoUpdateNameInput albumDto){
-        AlbumDtoOutput albumDtoOutput = albumService.updateNameAlbum(idUser, idAlbum, albumDto);
+    @PatchMapping("/name/{idAlbum}")
+    public ResponseEntity<AlbumDtoOutput> updateNameAlbum(JwtAuthenticationToken token, @PathVariable UUID idAlbum, @RequestBody @Valid AlbumDtoUpdateNameInput albumDto){
+        AlbumDtoOutput albumDtoOutput = albumService.updateNameAlbum(token, idAlbum, albumDto);
         return ResponseEntity.ok(albumDtoOutput);
     }
 
-    @PatchMapping("/description/{idUser}/{idAlbum}")
-    public ResponseEntity<AlbumDtoOutput> updateDescriptionAlbum(@PathVariable UUID idUser, @PathVariable UUID idAlbum, @RequestBody @Valid AlbumDtoUpdateDescriptionInput albumDto){
-        AlbumDtoOutput albumDtoOutput = albumService.updateDescriptionAlbum(idUser, idAlbum, albumDto);
+    @PatchMapping("/description/{idAlbum}")
+    public ResponseEntity<AlbumDtoOutput> updateDescriptionAlbum(JwtAuthenticationToken token, @PathVariable UUID idAlbum, @RequestBody @Valid AlbumDtoUpdateDescriptionInput albumDto){
+        AlbumDtoOutput albumDtoOutput = albumService.updateDescriptionAlbum(token, idAlbum, albumDto);
         return ResponseEntity.ok(albumDtoOutput);
     }
 
-    @GetMapping("/{idUser}")
-    public ResponseEntity<List<AlbumDtoOutput>> listAlbumUser(@PathVariable UUID idUser){
-        List<AlbumDtoOutput> listAlbumUser = albumService.listAlbum(idUser);
+    @GetMapping
+    public ResponseEntity<List<AlbumDtoOutput>> listAlbumUser(JwtAuthenticationToken token){
+        List<AlbumDtoOutput> listAlbumUser = albumService.listAlbum(token);
         return ResponseEntity.ok(listAlbumUser);
     } 
 
-    @DeleteMapping("/image/{idUser}/{idAlbum}")
-    public ResponseEntity deleteImageAlbum(@PathVariable UUID idUser, @PathVariable UUID idAlbum, @RequestBody @Valid AlbumDtoDeleteImageInput imageDto){
-        albumService.deleteImageAlbum(idUser, idAlbum, imageDto);
+    @DeleteMapping("/image/{idAlbum}")
+    public ResponseEntity deleteImageAlbum(JwtAuthenticationToken token, @PathVariable UUID idAlbum, @RequestBody @Valid AlbumDtoDeleteImageInput imageDto){
+        albumService.deleteImageAlbum(token, idAlbum, imageDto);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{idUser}/{idAlbum}")
-    public ResponseEntity deleteAlbum(@PathVariable UUID idUser, @PathVariable UUID idAlbum){
-        albumService.deleteAlbum(idUser, idAlbum);
+    @DeleteMapping("/{idAlbum}")
+    public ResponseEntity deleteAlbum(JwtAuthenticationToken token, @PathVariable UUID idAlbum){
+        albumService.deleteAlbum(token, idAlbum);
         return ResponseEntity.noContent().build();
     }
 }

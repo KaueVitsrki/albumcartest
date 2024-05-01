@@ -6,15 +6,18 @@ import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import album.car.test.albumcar12.dto.diaryDto.DiaryDtoCreateInput;
 import album.car.test.albumcar12.dto.diaryDto.DiaryDtoDeleteImageInput;
 import album.car.test.albumcar12.dto.diaryDto.DiaryDtoInsertImageInput;
+import album.car.test.albumcar12.dto.diaryDto.DiaryDtoInsertYoutubeVideo;
 import album.car.test.albumcar12.dto.diaryDto.DiaryDtoOutput;
 import album.car.test.albumcar12.dto.diaryDto.DiaryDtoUpdateTextInput;
 import album.car.test.albumcar12.exception.ImageExistException;
 import album.car.test.albumcar12.exception.MaxListSizeException;
+import album.car.test.albumcar12.exception.YoutubeVideoNotExistException;
 import album.car.test.albumcar12.model.AlbumModel;
 import album.car.test.albumcar12.model.DiaryModel;
 import album.car.test.albumcar12.model.UserModel;
@@ -36,42 +39,68 @@ public class DiaryService {
     private DiaryRepository diaryRepository;
 
     @Transactional
-    public DiaryDtoOutput createDiary(UUID idUser, UUID idAlbum, DiaryDtoCreateInput diaryDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Não foi possível criar o diary! O usuário não existe");
-        }
+    public DiaryDtoOutput createDiary(JwtAuthenticationToken token, UUID idAlbum, DiaryDtoCreateInput diaryDto){
+        UserModel userLogged = userLogged(token);
+
         if(!albumRepository.existsById(idAlbum)){
             throw new EntityNotFoundException("Não foi possível criar o diary! O album não existe");
         }
 
-        UserModel user = userRepository.findUserById(idUser);
-        AlbumModel albumUser = user.getAlbum().stream()
+        AlbumModel albumUser = userLogged.getAlbum().stream()
         .filter(album -> album.getId().equals(idAlbum))
         .findFirst()
         .orElseThrow(() -> new NoSuchElementException("Não foi possível encontrar o album"));
         DiaryModel diaryModel = modelMapper.map(diaryDto, DiaryModel.class);
 
-        diaryModel.setUser(user); 
+        diaryModel.setUser(userLogged); 
         diaryModel.setAlbum(albumUser);
         albumUser.getDiary().add(diaryModel);
         albumRepository.save(albumUser);
-        userRepository.save(user);
+        userRepository.save(userLogged);
         DiaryDtoOutput diaryConvertDto = modelMapper.map(diaryModel, DiaryDtoOutput.class);
         
         return diaryConvertDto;
     }
 
     @Transactional
-    public DiaryDtoOutput insertImageDiary(UUID idUser, UUID idAlbum, UUID idDiary, DiaryDtoInsertImageInput diaryDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Não foi possível inserir a imagem! O usuário não existe");
+    public DiaryDtoOutput insertYoutubeVideo(JwtAuthenticationToken token, UUID idAlbum, UUID idDiary, DiaryDtoInsertYoutubeVideo youtubeVideo){
+        UserModel userLogged = userLogged(token);
+
+        if(!albumRepository.existsById(idAlbum)){
+            throw new EntityNotFoundException("Não foi possível inserir o video! O album não existe");
         }
+        if(!diaryRepository.existsById(idDiary)){
+            throw new EntityNotFoundException("Não foi possível inserir o video! O diary não existe");
+        }
+
+        AlbumModel albumUser = userLogged.getAlbum().stream()
+        .filter(album -> album.getId().equals(idAlbum))
+        .findFirst()
+        .orElseThrow(() -> new NoSuchElementException("Não foi possível encontrar o album"));
+        DiaryModel diaryModel = albumUser.getDiary().stream()
+        .filter(diary -> diary.getId().equals(idDiary))
+        .findFirst()
+        .orElseThrow(() -> new NoSuchElementException("Não foi possível encontrar o diary"));
+
+        diaryModel.setYoutubeVideo(youtubeVideo.getYoutubeVideo());
+        diaryRepository.save(diaryModel);
+        DiaryDtoOutput diaryDtoOutput = modelMapper.map(diaryModel, DiaryDtoOutput.class);
+        
+        return diaryDtoOutput; 
+    }
+
+    @Transactional
+    public DiaryDtoOutput insertImageDiary(JwtAuthenticationToken token, UUID idAlbum, UUID idDiary, DiaryDtoInsertImageInput diaryDto){
+        UserModel userLogged = userLogged(token);
+
         if(!albumRepository.existsById(idAlbum)){
             throw new EntityNotFoundException("Não foi possível inserir a imagem! O album não existe");
         }
+        if(!diaryRepository.existsById(idDiary)){
+            throw new EntityNotFoundException("Não foi possível inserir a imagem! O diary não existe");
+        }
 
-        UserModel user = userRepository.findUserById(idUser);
-        AlbumModel albumUser = user.getAlbum().stream()
+        AlbumModel albumUser = userLogged.getAlbum().stream()
         .filter(album -> album.getId().equals(idAlbum))
         .findFirst()
         .orElseThrow(() -> new NoSuchElementException("Não foi possível encontrar o album"));
@@ -99,10 +128,9 @@ public class DiaryService {
     }
 
     @Transactional
-    public DiaryDtoOutput updateTextDiary(UUID idUser, UUID idAlbum, UUID idDiary, DiaryDtoUpdateTextInput diaryDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Não foi possível atualizar o diary! O usuário não existe");
-        }
+    public DiaryDtoOutput updateTextDiary(JwtAuthenticationToken token, UUID idAlbum, UUID idDiary, DiaryDtoUpdateTextInput diaryDto){
+        UserModel userLogged = userLogged(token);
+
         if(!albumRepository.existsById(idAlbum)){
             throw new EntityNotFoundException("Não foi possível atualizar o diary! O album não existe");
         }
@@ -110,8 +138,7 @@ public class DiaryService {
             throw new EntityNotFoundException("Não foi possível atualizar o diary! O diary não existe");
         }
 
-        UserModel user = userRepository.findUserById(idUser);
-        AlbumModel albumUser = user.getAlbum().stream()
+        AlbumModel albumUser = userLogged.getAlbum().stream()
         .filter(album -> album.getId().equals(idAlbum))
         .findFirst()
         .orElseThrow(() -> new NoSuchElementException("Não foi possível encontrar o album"));
@@ -127,12 +154,11 @@ public class DiaryService {
         return diaryDtoOutput;
     }
 
-    public List<DiaryDtoOutput> listDiaryAlbum(UUID idUser, UUID idAlbum){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Não foi possível criar o diary! O usuário não existe");
-        }
+    public List<DiaryDtoOutput> listDiaryAlbum(JwtAuthenticationToken token, UUID idAlbum){
+        UserModel userLogged = userLogged(token);
+
         if(!albumRepository.existsById(idAlbum)){
-            throw new EntityNotFoundException("Não foi possível criar o diary! O album não existe");
+            throw new EntityNotFoundException("Não foi possível listar os diary! O album não existe");
         }
 
         AlbumModel album = albumRepository.findAlbumById(idAlbum);
@@ -142,10 +168,9 @@ public class DiaryService {
     }
 
     @Transactional
-    public void deleteImageDiary(UUID idUser, UUID idAlbum, UUID idDiary, DiaryDtoDeleteImageInput diaryDto){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Não foi possível deletar a imagem! O usuário não existe");
-        }
+    public void deleteImageDiary(JwtAuthenticationToken token, UUID idAlbum, UUID idDiary, DiaryDtoDeleteImageInput diaryDto){
+        UserModel userLogged = userLogged(token);
+
         if(!albumRepository.existsById(idAlbum)){
             throw new EntityNotFoundException("Não foi possível deletar a imagem! O album não existe");
         }
@@ -153,8 +178,7 @@ public class DiaryService {
             throw new EntityNotFoundException("Não foi possível deletar a imagem! O diary não existe");
         }
         
-        UserModel user = userRepository.findUserById(idUser);
-        AlbumModel albumUser = user.getAlbum().stream()
+        AlbumModel albumUser = userLogged.getAlbum().stream()
         .filter(album -> album.getId().equals(idAlbum))
         .findFirst()
         .orElseThrow(() -> new NoSuchElementException("Não foi possível encontrar o album"));
@@ -174,11 +198,38 @@ public class DiaryService {
         diaryRepository.save(diaryModel);
     }
 
-    @Transactional 
-    public void deleteDiary(UUID idUser, UUID idAlbum, UUID idDiary){
-        if(!userRepository.existsById(idUser)){
-            throw new EntityNotFoundException("Não foi possível deletar o diary! O usuário não existe");
+    @Transactional
+    public void deleteYoutubeVideo(JwtAuthenticationToken token, UUID idAlbum, UUID idDiary){
+        UserModel userLogged = userLogged(token);
+
+        if(!albumRepository.existsById(idAlbum)){
+            throw new EntityNotFoundException("Não foi possível deletar o video! O album não existe");
         }
+        if(!diaryRepository.existsById(idDiary)){
+            throw new EntityNotFoundException("Não foi possível deletar o video! O diary não existe");
+        }
+
+        AlbumModel albumUser = userLogged.getAlbum().stream()
+        .filter(album -> album.getId().equals(idAlbum))
+        .findFirst()
+        .orElseThrow(() -> new NoSuchElementException("Não foi possível encontrar o album"));
+        DiaryModel diaryModel = albumUser.getDiary().stream()
+        .filter(diary -> diary.getId().equals(idDiary))
+        .findFirst()
+        .orElseThrow(() -> new NoSuchElementException("Não foi possível encontrar o diary"));
+
+        if(diaryModel.getYoutubeVideo() == null){
+            throw new YoutubeVideoNotExistException("Não foi possível deletar o video! Nenhum video foi adicionado");
+        }
+
+        diaryModel.setYoutubeVideo(null);
+        diaryRepository.save(diaryModel);
+    }
+
+    @Transactional 
+    public void deleteDiary(JwtAuthenticationToken token, UUID idAlbum, UUID idDiary){
+        UserModel userLogged = userLogged(token);
+
         if(!albumRepository.existsById(idAlbum)){
             throw new EntityNotFoundException("Não foi possível deletar o diary! O album não existe");
         }
@@ -186,8 +237,7 @@ public class DiaryService {
             throw new EntityNotFoundException("Não foi possível deletar o diary! O diary não existe");
         }
 
-        UserModel user = userRepository.findUserById(idUser);
-        AlbumModel albumUser = user.getAlbum().stream()
+        AlbumModel albumUser = userLogged.getAlbum().stream()
         .filter(album -> album.getId().equals(idAlbum))
         .findFirst()
         .orElseThrow(() -> new NoSuchElementException("Não foi possível encontrar o album"));
@@ -198,5 +248,10 @@ public class DiaryService {
 
         albumUser.getDiary().remove(diaryModel);
         albumRepository.save(albumUser);
+    }
+
+    private UserModel userLogged(JwtAuthenticationToken token){        
+        return userRepository.findById(UUID.fromString(token.getName()))
+        .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
     }
 }

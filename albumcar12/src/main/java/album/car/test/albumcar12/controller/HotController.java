@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,15 +21,15 @@ public class HotController {
     @Autowired
     private HotService hotService;
     
-    @PostMapping("/{idUser}/{idAlbum}")
-    public ResponseEntity<HotDto> createHot(@PathVariable UUID idUser, @PathVariable UUID idAlbum){
-        HotDto createHot = hotService.createHot(idUser, idAlbum);
+    @PostMapping("/{idAlbum}")
+    public ResponseEntity<HotDto> createHot(JwtAuthenticationToken token, @PathVariable UUID idAlbum){
+        HotDto createHot = hotService.createHot(token, idAlbum);
         return new ResponseEntity<HotDto>(createHot, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/{idUser}/{idAlbum}/{idHot}")
-    public ResponseEntity deleteHot(@PathVariable UUID idUser, @PathVariable UUID idAlbum, @PathVariable UUID idHot){
-        hotService.deleteHot(idUser, idAlbum, idHot);
+    @DeleteMapping("/{idAlbum}")
+    public ResponseEntity deleteHot(JwtAuthenticationToken token, @PathVariable UUID idAlbum){
+        hotService.deleteHot(token, idAlbum);
         return ResponseEntity.noContent().build();
     }
 }

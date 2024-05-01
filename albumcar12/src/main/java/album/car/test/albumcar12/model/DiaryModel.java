@@ -38,7 +38,7 @@ public class DiaryModel {
     @Column(nullable = false, updatable = false)
     private Timestamp data;
     
-    private String youtubeLink;
+    private String youtubeVideo;
     
     @Size(max=4)
     private List<String> images;
