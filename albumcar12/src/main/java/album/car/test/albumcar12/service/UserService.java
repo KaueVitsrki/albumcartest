@@ -255,7 +255,7 @@ public class UserService {
 
         return userDtoOutput;
     }
- 
+
     public List<UserDtoOutput> listUsers(){
         List<UserModel> listUsers = userRepository.findAll();
         return UserDtoOutput.convert(listUsers);

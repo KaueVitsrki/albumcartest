@@ -1,5 +1,6 @@
 package album.car.test.albumcar12.dto.diaryDto;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -19,6 +20,7 @@ public class DiaryDtoOutput {
     private String youtubeVideo;
     private List<String> images;
     private UserModel user;
+    private Timestamp data;
 
     public DiaryDtoOutput(DiaryModel diaryModel) {
         this.id = diaryModel.getId();
@@ -26,6 +28,7 @@ public class DiaryDtoOutput {
         this.youtubeVideo = diaryModel.getYoutubeVideo();
         this.images = diaryModel.getImages();
         this.user = diaryModel.getUser();
+        this.data = diaryModel.getData();
     }
 
     public static List<DiaryDtoOutput> convert(List<DiaryModel> diaryModel){

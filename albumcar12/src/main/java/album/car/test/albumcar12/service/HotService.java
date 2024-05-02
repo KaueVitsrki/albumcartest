@@ -1,14 +1,17 @@
 package album.car.test.albumcar12.service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
-import album.car.test.albumcar12.dto.hotDto.HotDto;
+import album.car.test.albumcar12.dto.hotDto.HotDtoOutput;
+import album.car.test.albumcar12.exception.ListIsEmptyException;
 import album.car.test.albumcar12.exception.UserGiveHotException;
 import album.car.test.albumcar12.model.AlbumModel;
 import album.car.test.albumcar12.model.HotModel;
@@ -28,7 +31,7 @@ public class HotService {
     private ModelMapper modelMapper;
 
     @Transactional
-    public HotDto createHot(JwtAuthenticationToken token, UUID idAlbum){
+    public HotDtoOutput createHot(JwtAuthenticationToken token, UUID idAlbum){
         UserModel userLogged = userLogged(token);
 
         if(!albumRepository.existsById(idAlbum)){
@@ -51,9 +54,10 @@ public class HotService {
             hotModel.setUser(userLogged);
             userLogged.getHot().add(hotModel);
             albumModel.getHot().add(hotModel);
+            albumModel.updateCountHot();
             userRepository.save(userLogged);
             albumRepository.save(albumModel);
-            HotDto convertHot = modelMapper.map(hotModel, HotDto.class);
+            HotDtoOutput convertHot = modelMapper.map(hotModel, HotDtoOutput.class);
             
             return convertHot;
         }
@@ -62,10 +66,25 @@ public class HotService {
         hotModel.setAlbum(albumModel);
         hotModel.setUser(userLogged);
         albumModel.getHot().add(hotModel);
+        albumModel.updateCountHot();
         albumRepository.save(albumModel);
-        HotDto convertHot = modelMapper.map(hotModel, HotDto.class);
+        HotDtoOutput convertHot = modelMapper.map(hotModel, HotDtoOutput.class);
 
         return convertHot;
+    }
+
+    public List<String> nameAlbumHotUser(JwtAuthenticationToken token){
+        UserModel userLogged = userLogged(token);
+
+        List<String> userNameAlbumList = userLogged.getAlbum().stream()
+        .map(AlbumModel::getName)
+        .collect(Collectors.toList());
+
+        if(userNameAlbumList.isEmpty()){
+            throw new ListIsEmptyException("Você não avaliou nenhum album");
+        }
+
+        return userNameAlbumList;
     }
 
     @Transactional
@@ -91,6 +110,7 @@ public class HotService {
 
         userLogged.getHot().remove(removeHot);
         albumModel.getHot().remove(removeHot);
+        albumModel.updateCountHot();
         userRepository.save(userLogged);
         albumRepository.save(albumModel);
     }
