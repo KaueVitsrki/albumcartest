@@ -42,6 +42,8 @@ public class AlbumModel {
     @Size(max = 4)
     private List<String> image;
 
+    private int countHot;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore
@@ -55,4 +57,11 @@ public class AlbumModel {
     @JsonIgnore
     private List<HotModel> hot;
 
+    public void updateCountHot() {
+        if (hot != null) {
+            countHot = hot.size();
+        } else {
+            countHot = 0;
+        }
+    }
 }

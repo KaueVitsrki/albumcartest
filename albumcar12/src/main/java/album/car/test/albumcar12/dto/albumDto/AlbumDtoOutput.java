@@ -21,6 +21,7 @@ public class AlbumDtoOutput {
     private List<String> image;
     private List<DiaryModel> diary;
     private List<HotModel> hot;
+    private int counHot;
     
     public AlbumDtoOutput(AlbumModel albumModel) {
         this.id = albumModel.getId();
@@ -29,6 +30,7 @@ public class AlbumDtoOutput {
         this.image = albumModel.getImage();
         this.diary = albumModel.getDiary();
         this.hot = albumModel.getHot();
+        this.counHot = albumModel.getCountHot();
     }  
 
     public static List<AlbumDtoOutput> convert(List<AlbumModel> albumModel){

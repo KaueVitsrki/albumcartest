@@ -1,9 +1,6 @@
 package album.car.test.albumcar12.dto.diaryDto;
 
-import java.util.List;
-
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,10 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DiaryDtoCreateInput {
+public class DiaryDtoInsertYoutubeVideo {
     @NotBlank
-    private String text;
     private String youtubeVideo;
-    @Size(max=4)
-    private List<String> images;
 }
