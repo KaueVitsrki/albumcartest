@@ -32,12 +32,14 @@ public class TokenService {
 
         var now = Instant.now();
         var expiresIn = 300L;
+        var scope = user.get().getRole();
 
         var claims = JwtClaimsSet.builder()
                 .issuer("albumcar12")
                 .subject(user.get().getId().toString())
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expiresIn))
+                .claim("scope", scope)
                 .build();
 
         var jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
