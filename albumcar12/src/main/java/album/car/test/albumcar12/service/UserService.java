@@ -28,6 +28,7 @@ import album.car.test.albumcar12.exception.ImageNotCreatedException;
 import album.car.test.albumcar12.exception.InvalidFieldsException;
 import album.car.test.albumcar12.exception.InvalidPassword;
 import album.car.test.albumcar12.model.UserModel;
+import album.car.test.albumcar12.model.UserRole;
 import album.car.test.albumcar12.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -57,6 +58,7 @@ public class UserService {
         userModel.setAlbum(new ArrayList<>());
         userModel.setDiary(new ArrayList<>());
         userModel.setHot(new ArrayList<>());
+        userModel.setRole(UserRole.NORMAL);
         UserModel createUser = userRepository.save(userModel);
         UserDtoOutput returnUser = modelMapper.map(createUser, UserDtoOutput.class);
 
