@@ -1,2 +1,4 @@
 src/main/resources
-target/
+target/classes/app.key
+target/classes/app.pub
+target/classes/application.properties
